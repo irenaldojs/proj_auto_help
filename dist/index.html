@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <title>WikiPeças</title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="stylesheet" href="./style/style.css">
+
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <meta name="mobile-web-app-capable" content="yes">
+
+    <!--IMPORTS-->
+    <script src="/Objective-UI.js"></script>
+    <script src="/App.js"></script>
+    <script src="/HomeView.js"></script>
+    <script src="/components/UIAnchor.js"></script>
+    <script src="/components/UIButtonImage.js"></script>
+    <script src="/components/UICardCustom.js"></script>
+    <script src="/components/UIInputCustom.js"></script>
+    <script src="/components/UINavBarCustom.js"></script>
+    <script src="/components/UISelectCustom.js"></script>
+    <script src="/mockApi/CatalogoAPIClient.js"></script>
+    <script src="/mockApi/CatalogoController.js"></script>
+    <script src="/viewModels/CatalogoItem.js"></script>
+    <script src="/viewModels/RetornoAPICatalogo.js"></script>
+    <script src="/viewModels/Veiculo.js"></script>
+    <script src="/views/ContentView.js"></script>
+    <script src="/views/FooterView.js"></script>
+    <script src="/views/PublicityView.js"></script>
+
+</head>
+
+<body>
+    <style>
+        html,
+        body {
+            height: 100%;
+        }
+    </style>
+
+    <main id="app" class="container-fluid bg-dark p-0">
+        <!-- app will appear here -->
+    </main>
+
+    <script>
+        //app "start-point"
+        new App(document);
+    </script>
+</body>
+
+</html>

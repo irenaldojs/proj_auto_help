@@ -1,0 +1,36 @@
+body{
+    margin: 0;
+}
+.fem-05{
+    font-size: .5em;
+}
+
+.fem-1{
+    font-size: 1em;
+}
+
+.f-tanks{
+    font-size: 1.5em;
+    font-style: italic;
+}
+.fem-2{
+    font-size: 2em;
+}
+.fem-3{
+    font-size: 3em;
+}
+.fem-4{
+    font-size: 4em;
+}
+
+.bg-gradient{
+    background: linear-gradient(to bottom, rgba(200, 200, 200, 0.3), rgba(50, 50, 50, 0.2));
+}
+
+.fit {
+    height: fit-content;
+}
+
+.body-min{
+    min-height: 100vh;
+}
