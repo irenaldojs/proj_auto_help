@@ -12,6 +12,7 @@ class CatalogoAPIClient {
             .call();
     }
     static GetMarcas(dataResultsFn) {
+        console.log('marcas');
         WebAPI.GET('catalogo/v1/marcas')
             .dataResultTo(dataResultsFn)
             .onSuccess(function (res) { })

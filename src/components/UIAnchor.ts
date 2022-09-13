@@ -3,12 +3,13 @@ import { ICustomWidgetPresenter, Widget } from "../Objective-UI";
 export class UIAnchor extends Widget {
 
     public anchorElement: HTMLAnchorElement;
+    public onClick: Function;
 
     private text: string;
     private href: string;
     private cssClass: string;
 
-    constructor({ name, text, href, cssClass}:
+    constructor({ name, text, href, cssClass }:
         {
             name: string;
             text?: string;
@@ -32,6 +33,12 @@ export class UIAnchor extends Widget {
         this.anchorElement.text = this.text
         this.anchorElement.href = this.href
         this.anchorElement.className = this.cssClass;
+
+        if (self.onClick != null) {
+            this.anchorElement.onclick = function (ev) {
+                self.onClick(ev);
+            };
+        }
 
     }
 

@@ -1,4 +1,4 @@
-import { UIAnchor } from "../components/UIAnchor"
+import { UIAnchor } from '../components/UIAnchor'
 import { Col, Row, UITemplateView, UIView, ViewLayout, Widget } from "../Objective-UI"
 
 export class FooterView extends UIView {
@@ -10,7 +10,7 @@ export class FooterView extends UIView {
     logoEmail = new UIAnchor({ name: 'logoEmail', href: "mailto:irenaldojs@gmail.com", cssClass: 'text-decoration-none' })
 
     private static $: FooterView;
-    
+
     constructor() {
         super()
         FooterView.$ = this;
@@ -19,7 +19,7 @@ export class FooterView extends UIView {
     buildLayout(): ViewLayout {
         return new ViewLayout('footer', [
             new Row('rowFooter', {
-                rowClass: 'd-flex flex-wrap justify-content-center pb-5 py-1 bg-success bg-gradient mx-0 w-100', 
+                rowClass: 'd-flex flex-wrap justify-content-center pb-5 py-1 bg-success bg-gradient mx-0 w-100',
                 columns: [
                     new Col('socialNetworks', {
                         colHeight: 'max-content',
@@ -39,10 +39,10 @@ export class FooterView extends UIView {
     onViewDidLoad(): void {
 
         this.specialThanks()
-        this.styleWidgets()        
+        this.styleWidgets()
     }
 
-    styleWidgets(){
+    styleWidgets() {
         this.logoFacebook.anchorElement.innerHTML = '<i class="fab fa-facebook"> Facebook</i>'
         this.logoLinkedin.anchorElement.innerHTML = '<i class="fab fa-linkedin"> Linkedin</i>'
         this.logoGitHub.anchorElement.innerHTML = '<i class="fab fa-github"> Github</i>'

@@ -17,6 +17,11 @@ class UIAnchor extends Widget {
         this.anchorElement.text = this.text;
         this.anchorElement.href = this.href;
         this.anchorElement.className = this.cssClass;
+        if (self.onClick != null) {
+            this.anchorElement.onclick = function (ev) {
+                self.onClick(ev);
+            };
+        }
     }
     value() {
         throw new Error("Button does not support value");

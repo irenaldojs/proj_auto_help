@@ -1,16 +1,15 @@
-import { PublicityView } from './views/PublicityView';
-import { Widget, UIView, ViewLayout, Row, Col, UILabel, WebAPI } from "./Objective-UI"
+import { Widget, UIView, ViewLayout, Row, Col, UILabel, WebAPI } from "../Objective-UI"
 
-import { FooterView } from './views/FooterView';
-import { ContentView } from './views/ContentView';
+import { PublicityView } from './PublicityView';
+import { FooterView } from './FooterView';
+import { ContentView } from './ContentView';
 
-import { UIButtonImage } from './components/UIButtonImage';
-import { UINavBarCustom } from './components/UINavBarCustom';
-import { CatalogoController } from "./mockApi/CatalogoController";
+import { UIButtonImage } from '../components/UIButtonImage';
+import { UINavBarCustom } from '../components/UINavBarCustom';
 
 
-export class HomeView extends UIView {
-    private static $: HomeView;
+export class MainView extends UIView {
+    private static $: MainView;
 
     // Header
     logoImg = new UIButtonImage({ name: 'logoImg', imageSrc: './img/logo.png', imageheight: '100%', imageWidth: 'auto' })
@@ -18,19 +17,19 @@ export class HomeView extends UIView {
 
     navBar = new UINavBarCustom({ name: 'navBar', cssClass: 'text-light pt-5' })
 
+    contentElement: HTMLDivElement
 
     constructor() {
         super();
-        HomeView.$ = this;
+        MainView.$ = this;
 
-        WebAPI.useSimulator(new CatalogoController());
     }
 
     buildLayout(): ViewLayout {
         return new ViewLayout('app', [
             new Row('mainHeader', {
                 rowHeidth: 'max-content',
-                rowClass: 'col-12 d-flex justify-content-start flex-row flex-wrap text-light  bg-gradient p-2 mx-0',
+                rowClass: 'col-12 d-flex justify-content-start flex-row flex-wrap text-light bg-dark bg-gradient p-2 mx-0 fixed-top',
                 columns: [
                     new Col('bannerContainer', {
                         colClass: 'd-inline-flex flex-row p-0'
@@ -42,14 +41,14 @@ export class HomeView extends UIView {
             }),
             new Row('content', {
                 rowHeidth: '600px',
-                rowClass: 'm-2 p1 rounded bg-secondary bg-gradient'
+                rowClass: 'rounded bg-secondary bg-gradient pd-top '
             }),
             new Row('publicity', {
-                rowClass: 'd-flex flex-wrap justify-content-center',
+                rowClass: 'd-flex flex-wrap justify-content-center pd-top bg-dark',
             }),
             new Row('footer', {
                 rowHeidth: 'max-content',
-                rowClass: 'w-100',
+                rowClass: 'w-100 pd-top bg-dark',
             }),
         ])
     }
@@ -61,25 +60,33 @@ export class HomeView extends UIView {
     }
 
     onViewDidLoad(): void {
+        const $ = MainView.$.shellPage
         this.mountTabs()
         this.styleWidgets()
 
         this.shellPage.navigateToView(new FooterView())
         this.shellPage.navigateToView(new ContentView())
         this.shellPage.navigateToView(new PublicityView())
+
+
     }
 
     styleWidgets() {
         this.addListCSSClass(this.logoImg, [])
         this.addListCSSClass(this.logoText, ['fem-3', 'p-3', 'me-5'])
+
     }
 
     mountTabs() {
-        this.navBar.addTab('INÍCIO', '/index.html')
+        this.navBar.addTab('INÍCIO', '#content')
         this.navBar.addTab('ONDE COMPRAR?', '#publicity')
         this.navBar.addTab('SOBRE NÓS', '#footer')
     }
+    marginTop(): void {
 
+
+
+    }
     addListCSSClass(widget: Widget, listClass: string[]) {
         listClass.forEach(e => {
             widget.addCSSClass(e)

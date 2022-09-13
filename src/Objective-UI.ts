@@ -11,45 +11,36 @@
  * UIPage will initialize a `PageShell` and act in conjunction with it 
  * to manipulate the DOM of the page as a general.
  */
-export abstract class UIPage
-{
+export abstract class UIPage {
     public static readonly PRODUCT_VERSION: string = '0.8.1'
     public static DISABLE_EXCEPTION_PAGE: boolean = false;
     protected mainShell: PageShell;
 
-    constructor(doc: Document)
-    {
+    constructor(doc: Document) {
         this.mainShell = new PageShell(doc, this);
     }
 
-    protected setStorageProvider(provider: IAppStorageProvider): void
-    {
+    protected setStorageProvider(provider: IAppStorageProvider): void {
         this.mainShell.setStorageProvider(provider);
     }
 
-    protected enableSplitting(appContainerId: string, splitContainerId: string): void
-    {
+    protected enableSplitting(appContainerId: string, splitContainerId: string): void {
         this.mainShell.enableSplitting(appContainerId, splitContainerId);
     }
 
-    protected setLibRoot(rootPath: string): void
-    {
+    protected setLibRoot(rootPath: string): void {
         PageShell.LIB_ROOT = rootPath;
     }
 
-    protected importLib({ libName, cssPath, jsPath }: { libName: string; cssPath?: string; jsPath?: string; })
-    {
+    protected importLib({ libName, cssPath, jsPath }: { libName: string; cssPath?: string; jsPath?: string; }) {
         this.mainShell.import(new NativeLib({ libName, cssPath, jsPath }));
     }
 
-    public navigateToView(view: UIView): void
-    {
-        try
-        {
+    public navigateToView(view: UIView): void {
+        try {
             view.initialize(this.mainShell);
         }
-        catch(error)
-        {
+        catch (error) {
             new DefaultExceptionPage(error as Error);
         }
     }
@@ -63,8 +54,7 @@ export abstract class UIPage
  * We can say in general terms that 
  * "this is a 'screen' of the application"
  */
-export abstract class UIView implements INotifiable
-{
+export abstract class UIView implements INotifiable {
     /**
      * You must return a `ViewLayout` class instance to 
      * define the layout demarcations for this View
@@ -131,8 +121,7 @@ onViewDidLoad(): void
     /**
      * (Optional overwrite) occurs when a Widget sends a message
      */
-    public onWidgetMessage(message: WidgetMessage): void
-    { }
+    public onWidgetMessage(message: WidgetMessage): void { }
 
     private view: UIView;
     protected shellPage: PageShell;
@@ -140,8 +129,7 @@ onViewDidLoad(): void
     private customPresenter?: ILayoutPresenter;
     protected buildedLayout: ViewLayout;
 
-    constructor(customLayoutPresenter?: ILayoutPresenter)
-    {
+    constructor(customLayoutPresenter?: ILayoutPresenter) {
         this.customPresenter = customLayoutPresenter;
     }
 
@@ -156,34 +144,28 @@ onViewDidLoad(): void
      * ```
      * @param schemaName A unique id-name to determine the data scope
      */
-    protected requestLocalStorage(schemaName: string): AppStorage
-    {
+    protected requestLocalStorage(schemaName: string): AppStorage {
         return this.shellPage.requestStorage('local', schemaName);
     }
 
-    protected requestSessionStorage(schemaName: string): AppStorage
-    {
+    protected requestSessionStorage(schemaName: string): AppStorage {
         return this.shellPage.requestStorage('session', schemaName);
     }
 
-    protected viewContext(): WidgetContext
-    {
+    protected viewContext(): WidgetContext {
         return this.widgetContext;
     }
 
-    protected inflateTemplateView(rawHtml: string) : UITemplateView
-    {
+    protected inflateTemplateView(rawHtml: string): UITemplateView {
         return new UITemplateView(rawHtml, this.shellPage);
     }
 
-    onNotified(sender: any, args: any[]): void
-    {
+    onNotified(sender: any, args: any[]): void {
         if (sender == 'FSWidgetContext')
             this.onViewDidLoad();
     }
 
-    public initialize(mainShell: PageShell)
-    {
+    public initialize(mainShell: PageShell) {
         this.shellPage = mainShell;
 
         this.buildedLayout = this.buildLayout();
@@ -204,8 +186,7 @@ onViewDidLoad(): void
     /**
      * Get all Widgets attached and managed in this UIView
      */
-    public managedWidgets():Array<Widget>
-    {
+    public managedWidgets(): Array<Widget> {
         if (this.widgetContext == null || this.widgetContext == undefined)
             return [];
         return this.widgetContext.getManagedWidgets();
@@ -216,8 +197,7 @@ onViewDidLoad(): void
      * @param layoutId An 'Id' of div contained in the `ViewLayout` class
      * @param widgets An array of Widget objects that will be bound to 'layoutId'
      */
-    protected addWidgets(layoutId: string, ...widgets: Widget[]): void
-    {
+    protected addWidgets(layoutId: string, ...widgets: Widget[]): void {
         for (var i = 0; i < widgets.length; i++)
             this.widgetContext.addWidget(layoutId, widgets[i]);
     }
@@ -225,8 +205,7 @@ onViewDidLoad(): void
     /**
      * Remove a Widget managed by this UIView
      */
-    protected removeWidget(widget: Widget): void
-    {
+    protected removeWidget(widget: Widget): void {
         this.viewContext().removeWidget(widget);
     }
 
@@ -236,8 +215,7 @@ onViewDidLoad(): void
      * @param layoutId An 'Id' div contained in the `ViewLayout`class
      * @param widgetName The name of a Widget managed by this UIView and previously attached to the ViewLayout through the specified 'layoutId'
      */
-    protected findWidget(layoutId: string, widgetName: string): Widget
-    {
+    protected findWidget(layoutId: string, widgetName: string): Widget {
         return this.viewContext().findWidget(layoutId, widgetName);
     }
 
@@ -249,8 +227,7 @@ onViewDidLoad(): void
      * @param managedDivIds The set of 'Id' divs managed by this Context Widget
      * @param messageProtocol A function that responds to the message triggered by this context indicating its complete loading
      */
-    protected createWidgetContext(managedDivIds: string[], messageProtocol?: Function): WidgetContext
-    {
+    protected createWidgetContext(managedDivIds: string[], messageProtocol?: Function): WidgetContext {
         if (null == this.shellPage || undefined == this.shellPage)
             throw 'FSView.createWidgetContext(): It is not possible to do this as the View is not yet initialized. If you are making this call inside the constructor(), move it inside the composeView() function.';
 
@@ -270,8 +247,7 @@ It is also able to manage the elements marked with "id" attribute within that pi
 and then make them available to the inherited class as DOM objects.
  * 
  */
-export abstract class Widget implements INotifiable
-{
+export abstract class Widget implements INotifiable {
     /**
      * This function (in the inherited object) is triggered when "renderView()" 
      * manages to get the HTML resource from the WebDir and bind it to this Widget.
@@ -286,8 +262,7 @@ export abstract class Widget implements INotifiable
     /**
      * Occurs when the Widget is detached from the WidgetContext
      */
-    public onWidgetDetached(): void
-    {
+    public onWidgetDetached(): void {
 
     }
 
@@ -344,26 +319,22 @@ export abstract class Widget implements INotifiable
      * 
      * @param propertyPairs Array item: [{ p: 'xxx', v: 'vvv'}, ...]
      */
-    public applyAllCSS(propertyPairs: Array<any>): void
-    {
-        for (var i = 0; i < propertyPairs.length; i++)
-        {
+    public applyAllCSS(propertyPairs: Array<any>): void {
+        for (var i = 0; i < propertyPairs.length; i++) {
             var css = propertyPairs[i];
             this.applyCSS(css.p, css.v);
         }
     }
 
-    public cssFromString(cssString: string): void
-    {
+    public cssFromString(cssString: string): void {
         var statements = cssString.split(';');
-        for(var i = 0; i < statements.length; i++)
-        {
+        for (var i = 0; i < statements.length; i++) {
             var statement = statements[i];
-            if(statement == '') continue;
+            if (statement == '') continue;
             var parts = statement.split(':');
-            if(parts.length == 0) continue;
+            if (parts.length == 0) continue;
             var key = parts[0].trim();
-            if(key == '')continue;
+            if (key == '') continue;
             var value = parts[1].trim();
             this.applyCSS(key, value);
         }
@@ -380,28 +351,23 @@ export abstract class Widget implements INotifiable
      * @param resourceName The name of the html resource that will be fetched from the webdir and linked to this Widget
      * @param widgetName A name for this Widget instance
      */
-    constructor(widgetName: string)
-    {
+    constructor(widgetName: string) {
         this.widgetName = widgetName;
         this.viewDictionary = [];
         this.DOM;
     }
 
-    public replaceCSSClass(oldClass: string, newClass: string)
-    {
+    public replaceCSSClass(oldClass: string, newClass: string) {
         this.removeCSSClass(oldClass);
         this.addCSSClass(newClass);
     }
 
-    public getPageShell(): PageShell
-    {
-        try
-        {
+    public getPageShell(): PageShell {
+        try {
             return this.getOwnerFragment()
                 .contextRoot
                 .shellPage;
-        } catch (error)
-        {
+        } catch (error) {
             throw new Error(`Attempt to access or manipulate an unattached Widget. Check if the Widget was attached during the composeView() function of the respective View that originated this call.`);
         }
     }
@@ -411,16 +377,14 @@ export abstract class Widget implements INotifiable
      * Get the fragment (page div) that this widget owns
      * @returns WidgetFragment
      */
-    public getOwnerFragment(): WidgetFragment
-    {
+    public getOwnerFragment(): WidgetFragment {
         return this.parentFragment;
     }
 
     /**
      * Determines the fragment (page div) that this widget owns
      */
-    public setParentFragment(parentFragment: WidgetFragment): void
-    {
+    public setParentFragment(parentFragment: WidgetFragment): void {
         this.parentFragment = parentFragment;
     }
 
@@ -431,13 +395,11 @@ export abstract class Widget implements INotifiable
      * @param messageText A text for your message
      * @param messageAnyObject A custom data object
      */
-    protected sendMessage(messageId: number, messageText: string, messageAnyObject: object): void
-    {
+    protected sendMessage(messageId: number, messageText: string, messageAnyObject: object): void {
         this.parentFragment?.pushMessageToRoot(this.widgetName, messageId, messageText, messageAnyObject);
     }
 
-    protected processError(error: unknown)
-    {
+    protected processError(error: unknown) {
         new DefaultExceptionPage(error as unknown as Error);
         throw error;
     }
@@ -450,8 +412,7 @@ export abstract class Widget implements INotifiable
      * involving all of them and marked with an "id" attribute
      * @returns Element instance
      */
-    public getDOMElement(): Element
-    {
+    public getDOMElement(): Element {
         if (this.viewDictionary.length == 0) return null;
         var firstId: string = this.viewDictionary[0].getOriginalId();
         return this.elementById(firstId);
@@ -463,14 +424,11 @@ export abstract class Widget implements INotifiable
      * @param elementId Element id inside of the html template provided by inherited class
      * @returns 
      */
-    protected elementById<TElement>(elementId: string): TElement
-    {
+    protected elementById<TElement>(elementId: string): TElement {
         var pageShell = this.getPageShell();
-        for (var i = 0; i < this.viewDictionary.length; i++)
-        {
+        for (var i = 0; i < this.viewDictionary.length; i++) {
             var entry: ViewDictionaryEntry = this.viewDictionary[i];
-            if (entry.getOriginalId() == elementId)
-            {
+            if (entry.getOriginalId() == elementId) {
                 var elementResult: any = pageShell.elementById(entry.getManagedId());
                 return elementResult;
             }
@@ -492,8 +450,7 @@ export abstract class Widget implements INotifiable
      * @param originalId The Id of the element present in the HTML resource
      * @param generatedId The self-generated Id value
      */
-    private addDictionaryEntry(originalId: string, generatedId: string)
-    {
+    private addDictionaryEntry(originalId: string, generatedId: string) {
         var entry = new ViewDictionaryEntry(originalId, generatedId);
         this.viewDictionary.push(entry);
     }
@@ -508,8 +465,7 @@ export abstract class Widget implements INotifiable
      * "onWidgetDidLoad()" is invoked
      * @param onloadNotifiable An Notifiable to receive a notification when the Widget is rendered
      */
-    public renderView(onloadNotifiable: INotifiable)
-    {
+    public renderView(onloadNotifiable: INotifiable) {
         var self = this;
 
         this.viewDictionary = [];
@@ -519,12 +475,10 @@ export abstract class Widget implements INotifiable
         var domObj = parser.parseFromString(html, "text/html");
         var allIds = domObj.querySelectorAll('*[id]');
 
-        for (var i = 0; i < allIds.length; i++)
-        {
+        for (var i = 0; i < allIds.length; i++) {
             var element = allIds[i];
             var currentId = element.getAttribute('id');
-            if (currentId != null)
-            {
+            if (currentId != null) {
                 var newId = `${currentId}_${Widget.generateUUID()}`;
                 self.addDictionaryEntry(currentId, newId);
                 element.setAttribute('id', newId);
@@ -548,19 +502,15 @@ export abstract class Widget implements INotifiable
      * 
      * This function generates a UUID (universal unique identifier value) to bind to an HTML element
      */
-    public static generateUUID()
-    {
+    public static generateUUID() {
         var d = new Date().getTime();//Timestamp
         var d2 = ((typeof performance !== 'undefined') && performance.now && (performance.now() * 1000)) || 0;//Time in microseconds since page-load or 0 if unsupported
-        var res = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c)
-        {
+        var res = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
             var r = Math.random() * 16;//random number between 0 and 16
-            if (d > 0)
-            {//Use timestamp until depleted
+            if (d > 0) {//Use timestamp until depleted
                 r = (d + r) % 16 | 0;
                 d = Math.floor(d / 16);
-            } else
-            {//Use microseconds since page-load if supported
+            } else {//Use microseconds since page-load if supported
                 r = (d2 + r) % 16 | 0;
                 d2 = Math.floor(d2 / 16);
             }
@@ -582,8 +532,7 @@ export abstract class Widget implements INotifiable
  * created to manage another portion of Widgets 
  * located in other Divs.
  */
-export class WidgetContext
-{
+export class WidgetContext {
 
     fragments: WidgetFragment[];
     messageProtocolFunction?: Function;
@@ -595,30 +544,25 @@ export class WidgetContext
 
     constructor(shellPage: PageShell,
         managedElementsIds: string[],
-        messageProtocolFunction?: Function)
-    {
+        messageProtocolFunction?: Function) {
         this.fragments = [];
         this.messageProtocolFunction = messageProtocolFunction;
 
         var self = this;
         self.shellPage = shellPage;
 
-        for (var i = 0; i < managedElementsIds.length; i++)
-        {
+        for (var i = 0; i < managedElementsIds.length; i++) {
             var elementId = managedElementsIds[i];
             var divElement = shellPage.elementById(elementId) as HTMLDivElement;
             self.fragments.push(new WidgetFragment(self, divElement));
         }
     }
-    contextShell(): PageShell
-    {
+    contextShell(): PageShell {
         return this.shellPage;
     }
 
-    findFragment(fragmentName: string): WidgetFragment
-    {
-        for (var i = 0; i < this.fragments.length; i++)
-        {
+    findFragment(fragmentName: string): WidgetFragment {
+        for (var i = 0; i < this.fragments.length; i++) {
             var fragment: WidgetFragment = this.fragments[i];
             if (fragment.fragmentId == fragmentName)
                 return fragment;
@@ -626,17 +570,14 @@ export class WidgetContext
         return null as unknown as WidgetFragment;
     }
 
-    findWidget(fragmentName: string, widgetName: string)
-    {
+    findWidget(fragmentName: string, widgetName: string) {
         var fragment: WidgetFragment = this.findFragment(fragmentName);
         var widget: Widget = fragment.findWidget(widgetName);
         return widget;
     }
 
-    pushMessage(widgetName: string, messageId: number, messageText: string, messageAnyObject: object)
-    {
-        if (this.messageProtocolFunction != null)
-        {
+    pushMessage(widgetName: string, messageId: number, messageText: string, messageAnyObject: object) {
+        if (this.messageProtocolFunction != null) {
             this.messageProtocolFunction(
                 new WidgetMessage(
                     widgetName,
@@ -653,54 +594,44 @@ export class WidgetContext
      * A `WidgetFragment` is the direct controller of ONE 
      * div and can manage multiple Widgets related to this div
      */
-    addWidget(fragmentName: string, widget: Widget)
-    {
+    addWidget(fragmentName: string, widget: Widget) {
         var fragment = this.findFragment(fragmentName);
         fragment.attatchWidget(widget);
 
-        if (this.contextLoaded)
-        {
+        if (this.contextLoaded) {
             fragment.renderFragmentwidgets();
         }
 
         return this;
     }
 
-    getManagedWidgets(): Array<Widget>
-    {
-        try
-        {
+    getManagedWidgets(): Array<Widget> {
+        try {
             var widgets: Array<Widget> = [];
-            for (var frg = 0; frg < this.fragments.length; frg++)
-            {
+            for (var frg = 0; frg < this.fragments.length; frg++) {
                 var fragment: WidgetFragment = this.fragments[frg];
-                for (var wdg = 0; wdg < fragment.widgets.length; wdg++)
-                {
+                for (var wdg = 0; wdg < fragment.widgets.length; wdg++) {
                     var widget: Widget = fragment.widgets[wdg];
                     widgets.push(widget);
                 }
             }
             return widgets;
-        } 
-        catch(e)
-        {
+        }
+        catch (e) {
             return [];
         }
     }
 
-    removeWidget(widget: Widget)
-    {
+    removeWidget(widget: Widget) {
         if (widget == null) return;
         var fragment = widget.getOwnerFragment();
         if (fragment == null) return;
         fragment.dettatchwidget(widget);
     }
 
-    onFragmentLoad()
-    {
+    onFragmentLoad() {
         this.fragmentsLoaded += 1;
-        if (this.fragmentsLoaded == this.fragments.length)
-        {
+        if (this.fragmentsLoaded == this.fragments.length) {
             this.contextLoaded = true;
             if (this.notifiableView != null)
                 this.notifiableView.onNotified('FSWidgetContext', []);
@@ -714,13 +645,11 @@ export class WidgetContext
      * @param notifiable 
      * @param clear 
      */
-    build(notifiable?: INotifiable, clear: boolean = false)
-    {
+    build(notifiable?: INotifiable, clear: boolean = false) {
         this.fragmentsLoaded = 0;
         this.notifiableView = notifiable;
 
-        for (var i = 0; i < this.fragments.length; i++)
-        {
+        for (var i = 0; i < this.fragments.length; i++) {
             var fragment: WidgetFragment = this.fragments[i];
             if (clear == true)
                 fragment.clear();
@@ -758,8 +687,7 @@ export class BindingContext<ViewModel>
      * @param viewModel An instance of the ViewModel object
      * @param view UIView instance inherits class (the currently displayed UIView)
      */
-    constructor(viewModel: ViewModel, view: UIView)
-    {
+    constructor(viewModel: ViewModel, view: UIView) {
         this.viewModelInstance = viewModel;
         this.scanViewModel(view);
     }
@@ -770,11 +698,9 @@ export class BindingContext<ViewModel>
      * @param modelPropertyName The name of the property/key present in the ViewModelType type
      * @returns `WidgetBinderBehavior`
      */
-    public getBindingFor(modelPropertyName: string): WidgetBinderBehavior
-    {
+    public getBindingFor(modelPropertyName: string): WidgetBinderBehavior {
         var propBinders: Array<WidgetBinder> = [];
-        for (var i = 0; i < this._binders.length; i++)
-        {
+        for (var i = 0; i < this._binders.length; i++) {
             var binder: WidgetBinder = this._binders[i];
             if (binder.modelPropertyName == modelPropertyName)
                 propBinders.push(binder);
@@ -788,10 +714,8 @@ export class BindingContext<ViewModel>
      * \
      * (remember that the ViewModelType instance is managed by this context as well)
      */
-    public refreshAll(): void
-    {
-        for (var b = 0; b < this._binders.length; b++)
-        {
+    public refreshAll(): void {
+        for (var b = 0; b < this._binders.length; b++) {
             var binder: WidgetBinder = this._binders[b];
             binder.refreshUI();
         }
@@ -801,10 +725,9 @@ export class BindingContext<ViewModel>
      * Get an instance of `ViewModel` based on Widgets values
      * @returns `ViewModel`
      */
-    public getViewModel<ViewModel>(): ViewModel
-    {
-        for(var i = 0; i < this._binders.length; i++)
-          this._binders[i].fillPropertyModel();
+    public getViewModel<ViewModel>(): ViewModel {
+        for (var i = 0; i < this._binders.length; i++)
+            this._binders[i].fillPropertyModel();
         return this.viewModelInstance as unknown as ViewModel;
     }
 
@@ -816,11 +739,9 @@ export class BindingContext<ViewModel>
      * @param viewModelInstance `ViewModel` 
      * @returns 
      */
-    public setViewModel(viewModelInstance: ViewModel): BindingContext<ViewModel>
-    {
+    public setViewModel(viewModelInstance: ViewModel): BindingContext<ViewModel> {
         this.viewModelInstance = viewModelInstance;
-        for (var b = 0; b < this._binders.length; b++)
-        {
+        for (var b = 0; b < this._binders.length; b++) {
             var binder: WidgetBinder = this._binders[b];
             binder.setModel(this.viewModelInstance, binder.modelPropertyName);
         }
@@ -833,17 +754,14 @@ export class BindingContext<ViewModel>
      * properties/keys present in the ViewModel type object 
      * managed by this Context
      */
-    private scanViewModel(view: UIView): void
-    {
+    private scanViewModel(view: UIView): void {
         var self = this;
         var widgets: Array<Widget> = view.managedWidgets();
         if (widgets == null || widgets == undefined || widgets.length == 0)
             throw new Error("Illegal declaration: BindingContext cannot be initialized by the View's constructor. Consider instantiating it in onViewDidLoad()");
 
-        for (var key in self.viewModelInstance)
-        {
-            for (var w = 0; w < widgets.length; w++)
-            {
+        for (var key in self.viewModelInstance) {
+            for (var w = 0; w < widgets.length; w++) {
                 var widget: Widget = widgets[w];
                 var keyMatch: boolean = self.isModelPropertyMatchWithWidget(widget, key);
                 if (keyMatch)
@@ -852,8 +770,7 @@ export class BindingContext<ViewModel>
         }
     }
 
-    private isModelPropertyMatchWithWidget(widget: Widget, modelKey: string): boolean
-    {
+    private isModelPropertyMatchWithWidget(widget: Widget, modelKey: string): boolean {
         var widgetName: string = widget.widgetName;
         if (widgetName.indexOf(modelKey) < 0) return false;
         var replaced: string = widgetName.replace(modelKey, '');
@@ -862,10 +779,8 @@ export class BindingContext<ViewModel>
         return (replacedLength < propLength);
     }
 
-    private bindWidget(widget: Widget, modelKey: string): WidgetBinder
-    {
-        try
-        {
+    private bindWidget(widget: Widget, modelKey: string): WidgetBinder {
+        try {
             var binder: WidgetBinder = (widget as unknown as IBindable).getBinder();
             if (binder == null || binder == undefined)
                 return null;
@@ -882,8 +797,7 @@ export class BindingContext<ViewModel>
  * Implementing this interface will make a
  * Widget compatible with Data Binding features
  */
-export interface IBindable
-{
+export interface IBindable {
     /**
      * Produces an instance of the `WidgetBinder` implementation. 
      * This class is responsible for controlling the data binding 
@@ -897,11 +811,9 @@ export interface IBindable
  * classes that are bound to a property/key of 
  * the object-model being managed by the `BindingContext<T>`
  */
-export class WidgetBinderBehavior
-{
+export class WidgetBinderBehavior {
     private _binders: Array<WidgetBinder>;
-    constructor(binders: Array<WidgetBinder>)
-    {
+    constructor(binders: Array<WidgetBinder>) {
         this._binders = binders;
     }
 
@@ -919,8 +831,7 @@ export class WidgetBinderBehavior
      * @param displayPropertyName The prop/key on the model object that will be displayed in the control
      * @param valuePropertyName The prop/key in the model object that will be used as the selected value in the Widget
      */
-    hasPath(displayPropertyName: string, valuePropertyName: string): WidgetBinderBehavior
-    {
+    hasPath(displayPropertyName: string, valuePropertyName: string): WidgetBinderBehavior {
         for (var i = 0; i < this._binders.length; i++)
             this._binders[i].hasPath(displayPropertyName, valuePropertyName);
         return this;
@@ -932,8 +843,7 @@ export class WidgetBinderBehavior
      * in the same model-object.
      * @param targetValuePropertyName  Property/key in the model-class to which the selected Widget-value will be transferred.
      */
-    hasTarget(targetValuePropertyName: string): WidgetBinderBehavior
-    {
+    hasTarget(targetValuePropertyName: string): WidgetBinderBehavior {
         for (var i = 0; i < this._binders.length; i++)
             this._binders[i].hasTarget(targetValuePropertyName);
         return this;
@@ -950,8 +860,7 @@ export class WidgetBinderBehavior
  * you will need to provide a `WidgetBinder` implementation 
  * to provide Data Binding functionality
  */
-export abstract class WidgetBinder
-{
+export abstract class WidgetBinder {
     abstract getWidgetValue(): any | object;
     abstract refreshUI(): void;
     abstract fillPropertyModel(): void;
@@ -968,35 +877,30 @@ export abstract class WidgetBinder
     public displayProperty: string;
     public valueProperty: string;
 
-    constructor(widget: Widget) 
-    {
+    constructor(widget: Widget) {
         this.widget = widget;
         this.widgetName = widget.widgetName;
         this.bindingName = `${typeof (widget)}Binding ${this.widgetName} => ${typeof (widget)}`;
     }
 
-    getModelPropertyValue(): any | object
-    {
+    getModelPropertyValue(): any | object {
         if (this._viewModel == null || this.modelPropertyName == null || this.modelPropertyName == '')
             return null;
         var value = this._viewModel[this.modelPropertyName];
         return value;
     }
 
-    setModelPropertyValue(value: any|object): void
-    {
+    setModelPropertyValue(value: any | object): void {
         if (this._viewModel == null || this.modelPropertyName == null || this.modelPropertyName == '')
             return;
         this._viewModel[this.modelPropertyName] = value;
     }
 
-    toString(): string
-    {
+    toString(): string {
         return this.bindingName;
     }
 
-    hasPath(displayPropertyName: string, valuePropertyName: string): WidgetBinder
-    {
+    hasPath(displayPropertyName: string, valuePropertyName: string): WidgetBinder {
         this.bindingHasPath = true;
         this.displayProperty = displayPropertyName;
         this.valueProperty = valuePropertyName;
@@ -1004,33 +908,28 @@ export abstract class WidgetBinder
         return this;
     }
 
-    hasTarget(targetValuePropertyName: string): WidgetBinder
-    {
+    hasTarget(targetValuePropertyName: string): WidgetBinder {
         this.modelTargetPropertyName = targetValuePropertyName;
         return this;
     }
 
-    isTargetDefined(): boolean
-    {
+    isTargetDefined(): boolean {
         return this.modelTargetPropertyName != null;
     }
 
-    fillModelTargetPropertyValue(): void
-    {
-        if(this.isTargetDefined() == false) return;
+    fillModelTargetPropertyValue(): void {
+        if (this.isTargetDefined() == false) return;
         var value = this.getWidgetValue();
         this._viewModel[this.modelTargetPropertyName] = value;
     }
 
-    getModelTargetPropertyValue(): any|object
-    {
-        if(this.isTargetDefined() == false) return;
+    getModelTargetPropertyValue(): any | object {
+        if (this.isTargetDefined() == false) return;
         var value = this._viewModel[this.modelTargetPropertyName];
         return value;
     }
 
-    setModel(viewModelInstance: any|object, propertyName: string): void
-    {
+    setModel(viewModelInstance: any | object, propertyName: string): void {
         this._viewModel = viewModelInstance;
         this.modelPropertyName = propertyName;
         this.bindingName = `${typeof (this.widget)}Binding ${this.widgetName} => ${typeof (this.widget)}.${this.modelPropertyName}`;
@@ -1038,10 +937,8 @@ export abstract class WidgetBinder
         this.refreshUI();
     }
 }
-export class Bearer
-{
-    public static get(token: string): Headers
-    {
+export class Bearer {
+    public static get(token: string): Headers {
         return new Headers({
             'content-type': 'application/json',
             'authorization': `Bearer ${token}`
@@ -1049,8 +946,7 @@ export class Bearer
     }
 }
 
-export class APIResponse
-{
+export class APIResponse {
     public statusCode: number;
     public statusMessage: string;
     public content: any | object;
@@ -1060,8 +956,7 @@ export class APIResponse
             code: number,
             msg: string,
             content: any | object,
-        })
-    {
+        }) {
         this.statusCode = code;
         this.statusMessage = msg;
         this.content = content;
@@ -1093,20 +988,16 @@ WebAPI
 .call(); //call REST api
  * ```
  */
-export class WebAPI
-{
+export class WebAPI {
     private static urlBase: string;
-    public static setURLBase(apiUrlBase: string)
-    {
+    public static setURLBase(apiUrlBase: string) {
         WebAPI.urlBase = apiUrlBase;
     }
 
-    public static requestTo(requestString: string, httpMethod: string)
-    {
+    public static requestTo(requestString: string, httpMethod: string) {
         if (requestString.startsWith('http'))
             return new WebAPI(requestString, httpMethod);
-        else
-        {
+        else {
             if (this.urlBase == '' || this.urlBase == undefined)
                 return new WebAPI(`${requestString}`, httpMethod);
             else
@@ -1114,29 +1005,24 @@ export class WebAPI
         }
     }
 
-    public static useSimulator(simulator: WebAPISimulator): void
-    {
+    public static useSimulator(simulator: WebAPISimulator): void {
         WebAPI.simulator = simulator;
     }
 
-    public static GET(requestString: string)
-    {
+    public static GET(requestString: string) {
         return this.requestTo(requestString, 'GET');
     }
 
-    public static POST(requestString: string)
-    {
+    public static POST(requestString: string) {
 
         return this.requestTo(requestString, 'POST');
     }
 
-    public static PUT(requestString: string)
-    {
+    public static PUT(requestString: string) {
         return this.requestTo(requestString, 'PUT');
     }
 
-    public static DELETE(requestString: string)
-    {
+    public static DELETE(requestString: string) {
         return this.requestTo(requestString, 'DELETE');
     }
 
@@ -1147,31 +1033,26 @@ export class WebAPI
     private fnOnError: Function;
     private static simulator: WebAPISimulator;
 
-    private constructor(url: string, method: string)
-    {
+    private constructor(url: string, method: string) {
         this.request = {};
         this.request.method = method;
         this.apiUrl = url;
         this.withHeaders(new Headers({ 'content-type': 'application/json' }));
     }
 
-    public call(): void
-    {
-        if (WebAPI.simulator == null)
-        {
+    public call(): void {
+        if (WebAPI.simulator == null) {
             var statusCode: number;
             var statusMsg: string;
             var self = this;
 
             fetch(self.apiUrl, self.request)
-                .then(function (ret: Response)
-                {
+                .then(function (ret: Response) {
                     statusCode = ret.status;
                     statusMsg = ret.statusText;
                     return ret.text();
                 })
-                .then(function (text: string)
-                {
+                .then(function (text: string) {
                     var json: any | object = null;
                     if (text.startsWith("{") || text.startsWith("["))
                         json = JSON.parse(text);
@@ -1182,14 +1063,11 @@ export class WebAPI
 
                     return apiResponse;
                 })
-                .then(function (res: APIResponse)
-                {
+                .then(function (res: APIResponse) {
                     if (self.fnOnSuccess != null)
                         self.fnOnSuccess(res);
-                    if(self.fnDataResultTo != null)
-                    {
-                        if(res.statusCode == 200)
-                        {
+                    if (self.fnDataResultTo != null) {
+                        if (res.statusCode == 200) {
                             var data = res.content;
                             self.fnDataResultTo(data);
                         }
@@ -1197,79 +1075,66 @@ export class WebAPI
                 })
                 .catch(err => (self.fnOnError == null ? {} : self.fnOnError(err)));
         }
-        else
-        {
-            try
-            {
+        else {
+            try {
                 var result = WebAPI.simulator.simulateRequest(
                     this.request.method,
                     this.apiUrl.replace(WebAPI.urlBase, ''),
                     this.request.body);
 
                 this.fnOnSuccess(result);
-            } catch (error)
-            {
+            } catch (error) {
                 this.fnOnError(error);
             }
         }
     }
 
-    public dataResultTo(callBack: Function): WebAPI
-    {
+    public dataResultTo(callBack: Function): WebAPI {
         this.fnDataResultTo = callBack;
         return this;
     }
 
-    public onSuccess(callBack: Function): WebAPI
-    {
+    public onSuccess(callBack: Function): WebAPI {
         this.fnOnSuccess = callBack;
         return this;
     }
 
-    public onError(callBack: Function): WebAPI
-    {
+    public onError(callBack: Function): WebAPI {
         this.fnOnError = callBack;
         return this;
     }
 
-    public withAllOptions(requestInit: RequestInit): WebAPI
-    {
+    public withAllOptions(requestInit: RequestInit): WebAPI {
         this.request = requestInit;
         return this;
     }
 
-    public withBody(requestBody: any | object): WebAPI
-    {
+    public withBody(requestBody: any | object): WebAPI {
         this.request.body = JSON.stringify(requestBody);
         return this;
     }
 
-    public withHeaders(headers: Headers): WebAPI
-    {
+    public withHeaders(headers: Headers): WebAPI {
         this.request.headers = headers;
         return this;
     }
 }
-export class SimulatedAPIRoute
-{
+export class SimulatedAPIRoute {
     private method: string;
     private resource: string;
     private endPoint: Function;
 
-    constructor(resource: string, method: string, endPoint: Function)
-    {
+    constructor(resource: string, method: string, endPoint: Function) {
         this.method = method;
         this.resource = resource;
         this.endPoint = endPoint;
     }
 
-    public getMethod()
-    {
+    public getMethod() {
         return this.method;
     }
 
-    public getResource()
-    {
+    public getResource() {
         return this.resource;
     }
 
@@ -1277,18 +1142,15 @@ export class SimulatedAPIRoute
         {
             body?: any | object,
             params?: Array<string>
-        }): any
-    {
-        if (this.method == 'GET' || this.method == 'DELETE')
-        {
+        }): any {
+        if (this.method == 'GET' || this.method == 'DELETE') {
             return this.endPoint(params);
         }
         else
             return this.endPoint(body);
     }
 
-    public toString()
-    {
+    public toString() {
         return `[${this.method}] ${this.resource}`;
     }
 }
@@ -1303,8 +1165,7 @@ export class SimulatedAPIRoute
     WebAPI.useSimulator(new MyAPISimulatorImpl());
     ```
  */
-export abstract class WebAPISimulator
-{
+export abstract class WebAPISimulator {
     private simulatedRoutes: Array<SimulatedAPIRoute> = [];
 
     /**
@@ -1331,8 +1192,7 @@ export abstract class WebAPISimulator
      * functionEndpointName(body: any|object): any|object
      * ```
      */
-    protected mapRoute(httpMethod: string, resource: string, endPoint: Function): WebAPISimulator
-    {
+    protected mapRoute(httpMethod: string, resource: string, endPoint: Function): WebAPISimulator {
         this.simulatedRoutes.push(new SimulatedAPIRoute(resource, httpMethod, endPoint));
         return this;
     }
@@ -1346,18 +1206,14 @@ export abstract class WebAPISimulator
     public simulateRequest(
         httpMethod: string,
         resource: string,
-        body: any | object): any | object
-    {
-        for (var i = 0; i < this.simulatedRoutes.length; i++)
-        {
+        body: any | object): any | object {
+        for (var i = 0; i < this.simulatedRoutes.length; i++) {
             const route: SimulatedAPIRoute = this.simulatedRoutes[i];
             const isResource = resource.startsWith(route.getResource());
             const isMethod = httpMethod == route.getMethod();
 
-            if (isResource && isMethod)
-            {
-                if (route.getMethod() == 'GET' || route.getMethod() == 'DELETE')
-                {
+            if (isResource && isMethod) {
+                if (route.getMethod() == 'GET' || route.getMethod() == 'DELETE') {
                     const path = resource.replace(route.getResource(), '');
                     var params = path.split('/');
                     if (params.length > 0)
@@ -1370,8 +1226,7 @@ export abstract class WebAPISimulator
                     });
                 }
 
-                if (route.getMethod() == 'POST' || route.getMethod() == 'PUT')
-                {
+                if (route.getMethod() == 'POST' || route.getMethod() == 'PUT') {
                     return new APIResponse({
                         code: 200,
                         msg: 'fetched from API Simulator',
@@ -1386,8 +1241,7 @@ export abstract class WebAPISimulator
 /**
  * Initialization options for div-columns
  */
-export class ColOptions
-{
+export class ColOptions {
     colClass?: string;
     colHeight?: string;
     rows?: Row[];
@@ -1397,8 +1251,7 @@ export class ColOptions
 /**
  * Represents a Column-Div with standard Bootstrap classes and a height of 100px
  */
-export class Col
-{
+export class Col {
     id: string;
     colClass?: string = 'col-lg-12 col-md-12 col-sm-12 col-sm-12';
     colHeight?: string = '100px';
@@ -1409,12 +1262,10 @@ export class Col
      * @param id The 'Id' attribute that the resulting div will have
      * @param options 
      */
-    constructor(id: string, options?: ColOptions)
-    {
+    constructor(id: string, options?: ColOptions) {
         this.id = id;
 
-        if (options != null)
-        {
+        if (options != null) {
             if (Misc.isNullOrEmpty(options.colHeight) == false)
                 this.colHeight = options.colHeight;
 
@@ -1429,19 +1280,16 @@ export class Col
 /**
  * A standard implementation for `ILayoutPresenter`
  */
-export class DefaultLayoutPresenter implements ILayoutPresenter
-{
+export class DefaultLayoutPresenter implements ILayoutPresenter {
     presenter: DefaultLayoutPresenter;
     private pageShell: PageShell;
 
-    constructor()
-    {
+    constructor() {
         this.presenter = this;
     }
 
 
-    renderLayout(layout: ViewLayout, pageShell: PageShell): Element
-    {
+    renderLayout(layout: ViewLayout, pageShell: PageShell): Element {
         this.pageShell = pageShell;
         var parentContainer: HTMLDivElement = layout.containerDivObj as HTMLDivElement;
 
@@ -1450,8 +1298,7 @@ export class DefaultLayoutPresenter implements ILayoutPresenter
         parentContainer.innerHTML = '';
         // parentContainer.style.opacity = '0';
 
-        for (let rowIndex = 0; rowIndex < layout.layoutRows.length; rowIndex++)
-        {
+        for (let rowIndex = 0; rowIndex < layout.layoutRows.length; rowIndex++) {
             var rowObj: Row = layout.layoutRows[rowIndex];
             var rowView = this.renderRow(rowObj);
             parentContainer.appendChild(rowView);
@@ -1460,16 +1307,13 @@ export class DefaultLayoutPresenter implements ILayoutPresenter
         return parentContainer;
     }
 
-    private renderRow(row: Row): HTMLDivElement
-    {
+    private renderRow(row: Row): HTMLDivElement {
 
         //creates master row div
         const rowDiv: HTMLDivElement = document.createElement("div");
-        if (row.rowClass != null && row.rowClass != undefined)
-        {
+        if (row.rowClass != null && row.rowClass != undefined) {
             const classes: Array<string> = row.rowClass.split(' ');
-            for (var i = 0; i < classes.length; i++)
-            {
+            for (var i = 0; i < classes.length; i++) {
                 const className = classes[i].trim();
                 if (className == '') continue;
                 rowDiv.classList.add(className);
@@ -1479,22 +1323,18 @@ export class DefaultLayoutPresenter implements ILayoutPresenter
         rowDiv.id = row.id;
         rowDiv.style.height = row.rowHeidth;
 
-        if (row.rowColumns != null)
-        {
-            for (let index = 0; index < row.rowColumns.length; index++)
-            {
+        if (row.rowColumns != null) {
+            for (let index = 0; index < row.rowColumns.length; index++) {
                 const column: Col = row.rowColumns[index];
 
                 //an sub-div column
                 const colDiv: HTMLDivElement = document.createElement("div");
 
-                if (Misc.isNullOrEmpty(column.colClass) == false)
-                {
+                if (Misc.isNullOrEmpty(column.colClass) == false) {
                     const classes: Array<string> = column.colClass.split(' ');
-                    for (var i = 0; i < classes.length; i++)
-                    {
+                    for (var i = 0; i < classes.length; i++) {
                         const className = classes[i].trim();
-                        if(className == '') continue;
+                        if (className == '') continue;
                         colDiv.classList.add(className);
                     }
                 }
@@ -1504,10 +1344,8 @@ export class DefaultLayoutPresenter implements ILayoutPresenter
 
                 rowDiv.appendChild(colDiv);
 
-                if (column.columnRows != null)
-                {
-                    for (let subRowIndex = 0; subRowIndex < column.columnRows.length; subRowIndex++)
-                    {
+                if (column.columnRows != null) {
+                    for (let subRowIndex = 0; subRowIndex < column.columnRows.length; subRowIndex++) {
                         //sub-div column has rows
                         const columnSubRow = column.columnRows[subRowIndex];
 
@@ -1534,9 +1372,8 @@ export class DefaultLayoutPresenter implements ILayoutPresenter
  * implementation to the `setCustomPresenter()` 
  * function in the `Widget` object
  */
-export interface ICustomWidgetPresenter<TWidget>
-{
-    render(widget: TWidget) : void;
+export interface ICustomWidgetPresenter<TWidget> {
+    render(widget: TWidget): void;
 }
 /**
  * A layout presenter's role is to read and 
@@ -1545,15 +1382,14 @@ export interface ICustomWidgetPresenter<TWidget>
  * by the `UIView` inherited class
  */
 export interface ILayoutPresenter {
-    renderLayout(layout: ViewLayout,  pageShell: PageShell):Element;
+    renderLayout(layout: ViewLayout, pageShell: PageShell): Element;
 }
 /**
  * Represents a notifiable object. Initially it is used by the 
  * WidgetContext to notify data to the UIView. \
  * But it can be used generically for any purpose.
  */
-export interface INotifiable
-{
+export interface INotifiable {
     /**
      * Notifies the target class that implements this contract
      * @param sender A name-id of whoever is sending this
@@ -1561,8 +1397,7 @@ export interface INotifiable
      */
     onNotified(sender: any, args: Array<any>): void;
 }
-export interface ISplittableView
-{
+export interface ISplittableView {
 
     onConnectViews(splitOwner: ISplittableView): void;
     onSplittedViewRequestExpand(send: UIView): void;
@@ -1580,8 +1415,7 @@ export interface ISplittableView
  * `<script />` import directly into 
  * the .HTML page.
  */
-export class NativeLib
-{
+export class NativeLib {
     libName: string;
     hasCss: boolean;
     hasJs: boolean;
@@ -1600,8 +1434,7 @@ export class NativeLib
         libName: string;
         cssPath?: string;
         jsPath?: string;
-    })
-    {
+    }) {
         this.libName = libName;
         this.cssPath = cssPath;
         this.jsPath = jsPath;
@@ -1609,17 +1442,14 @@ export class NativeLib
         this.hasJs = (jsPath != '' && jsPath != null);
     }
 
-    
-    public getCssFullPath(): string
-    {
+
+    public getCssFullPath(): string {
         return `${PageShell.LIB_ROOT}${this.libName}/${this.cssPath}`;
     }
-    public getJsFullPath(): string
-    {
+    public getJsFullPath(): string {
         return `${PageShell.LIB_ROOT}${this.libName}/${this.jsPath}`;
     }
-    public toString(): string
-    {
+    public toString(): string {
         return this.libName;
     }
 }
@@ -1630,8 +1460,7 @@ export class NativeLib
  * directly importing native JS-CSS libraries 
  * and controlling access to resources such as SplitView, Storage and others.
  */
-export class PageShell
-{
+export class PageShell {
 
     /**defaults: '/lib/' */
     public static LIB_ROOT = '/lib/'
@@ -1645,8 +1474,7 @@ export class PageShell
     private appContainer: HTMLDivElement;
     private splitContainer: HTMLDivElement;
 
-    constructor(mainDocument: Document, fsPage: UIPage) 
-    {
+    constructor(mainDocument: Document, fsPage: UIPage) {
         this.baseDocument = mainDocument;
         this.importedLibs = [];
         this.page = fsPage;
@@ -1658,8 +1486,7 @@ export class PageShell
      * indicating a implementation of the `IAppStorageProvider` interface
      * @param provider 
      */
-    public setStorageProvider(provider: IAppStorageProvider): void
-    {
+    public setStorageProvider(provider: IAppStorageProvider): void {
         this.appStorageProvider = provider;
     }
 
@@ -1671,8 +1498,7 @@ export class PageShell
      * @param schemaName A unique name to demarcate a data context
      * @returns `AppStorage` instance
      */
-    public requestStorage(type: string, schemaName: string): AppStorage
-    {
+    public requestStorage(type: string, schemaName: string): AppStorage {
         return this.appStorageProvider.onStorageRequested(type, schemaName);
     }
 
@@ -1685,8 +1511,7 @@ export class PageShell
      * @param appContainerId Id of the page's main app container div. The div that will display most UIView's in your app
      * @param splitContainerId Split container div id. The secondary UIView will be loaded in this Div
      */
-    public enableSplitting(appContainerId: string, splitContainerId: string): void
-    {
+    public enableSplitting(appContainerId: string, splitContainerId: string): void {
         this.appContainer = this.elementById(appContainerId) as HTMLDivElement;
         this.splitContainer = this.elementById(splitContainerId) as HTMLDivElement;
 
@@ -1702,8 +1527,7 @@ export class PageShell
     /**
      * Determines if SplitView is currently active
      */
-    public isViewSplitted(): boolean
-    {
+    public isViewSplitted(): boolean {
         return this.currentViewSplitted;
     }
 
@@ -1711,14 +1535,12 @@ export class PageShell
      * Sets the currently Splitted UIView to a reduced size
      * This will only work if `PageShell.isViewSplitted()` is `true`.
      */
-    public shrinkSplitView()
-    {
+    public shrinkSplitView() {
         if (this.currentViewSplitted == false) return;
 
         var self = this;
         this.splitContainer.hidden = false;
-        var interv = setInterval(function ()
-        {
+        var interv = setInterval(function () {
             self.appContainer.classList.remove('col-6');
             self.appContainer.classList.add('col-9');
 
@@ -1734,14 +1556,12 @@ export class PageShell
     /**
      * Sets the currently Splitted UIView to a side-by-side size (50%)
      */
-    public expandSplitView()
-    {
+    public expandSplitView() {
         if (this.currentViewSplitted == false) return;
 
         var self = this;
         this.splitContainer.hidden = false;
-        var interv = setInterval(function ()
-        {
+        var interv = setInterval(function () {
             self.appContainer.classList.remove(...self.appContainer.classList);
             self.appContainer.classList.add('col-6');
 
@@ -1759,14 +1579,12 @@ export class PageShell
      * @param ownerSplitView UIView currently displayed
      * @param splittedCallingView  New UIView that will be displayed next to the current one
      */
-    public requestSplitView(ownerSplitView: ISplittableView, splittedCallingView: UIView): void
-    {
+    public requestSplitView(ownerSplitView: ISplittableView, splittedCallingView: UIView): void {
         if (this.currentViewSplitted) return;
 
         var self = this;
         this.splitContainer.hidden = false;
-        var interv = setInterval(function ()
-        {
+        var interv = setInterval(function () {
             self.appContainer.classList.remove(...self.appContainer.classList);
             self.appContainer.classList.add('col-9');
             clearInterval(interv);
@@ -1782,15 +1600,13 @@ export class PageShell
     /**
      * Fully collapse the SplitView Div and destroy the currently used UIView with Split
      */
-    public closeSplitView()
-    {
+    public closeSplitView() {
         if (this.currentViewSplitted == false) return;
 
         var self = this;
         this.splitContainer.innerHTML = '';
         this.splitContainer.hidden = true;
-        var interv = setInterval(function ()
-        {
+        var interv = setInterval(function () {
             self.splitContainer.classList.remove(...self.splitContainer.classList);
             self.splitContainer.classList.add('col-3');
 
@@ -1809,8 +1625,7 @@ export class PageShell
      * @param innerText (Optional) an initial text inserted as tag content (if the html element supports it)
      * @returns 
      */
-    public createElement<K extends keyof HTMLElementTagNameMap>(tagName: K, innerText?: string)
-    {
+    public createElement<K extends keyof HTMLElementTagNameMap>(tagName: K, innerText?: string) {
         var element = this.baseDocument.createElement(tagName);
         if (innerText != null)
             element.innerText = innerText;
@@ -1821,8 +1636,7 @@ export class PageShell
      * Renders and brings to the front a view generated by a UIView object
      * @param view 
      */
-    public navigateToView(view: UIView): void
-    {
+    public navigateToView(view: UIView): void {
         this.page.navigateToView(view);
     }
 
@@ -1830,33 +1644,27 @@ export class PageShell
      * Get the `<body>` of the page
      * @returns 
      */
-    public getPageBody(): Element
-    {
+    public getPageBody(): Element {
         return this.elementsByTagName('body')[0];
     }
 
-    public elementsByTagName(tagName: string): HTMLCollectionOf<Element>
-    {
+    public elementsByTagName(tagName: string): HTMLCollectionOf<Element> {
         return this.baseDocument.getElementsByTagName(tagName);
     }
 
-    public elementById(elementId: string): Element
-    {
+    public elementById(elementId: string): Element {
         return this.baseDocument.getElementById(elementId);
     }
 
-    public appendChildToElement(containerElement: Element, childElement: Element): Element
-    {
+    public appendChildToElement(containerElement: Element, childElement: Element): Element {
         return containerElement.appendChild(childElement);
     }
 
-    public removeChildFromElement(containerElement: Element, childElement: Element): Element
-    {
+    public removeChildFromElement(containerElement: Element, childElement: Element): Element {
         return containerElement.removeChild(childElement);
     }
 
-    public getImportedLib(libName: string): NativeLib
-    {
+    public getImportedLib(libName: string): NativeLib {
         if (this.importedLibs == undefined) return;
         for (var i = 0; i < this.importedLibs.length; i++)
             if (this.importedLibs[i].libName == libName)
@@ -1869,14 +1677,12 @@ export class PageShell
      * specifying the name and paths to the 
      * .js and .css content files
      */
-    public import(lib: NativeLib): void
-    {
+    public import(lib: NativeLib): void {
         var existing = this.getImportedLib(lib.libName);
         if (existing !== null)
             return;
 
-        if (lib.hasCss)
-        {
+        if (lib.hasCss) {
             var link: HTMLLinkElement = document.createElement('link');
             link.rel = 'stylesheet';
             link.type = 'text/css';
@@ -1885,8 +1691,7 @@ export class PageShell
             document.head.appendChild(link);
         }
 
-        if (lib.hasJs)
-        {
+        if (lib.hasJs) {
             var jsImport: HTMLScriptElement = document.createElement('script');
             jsImport.src = lib.getJsFullPath();
 
@@ -1896,15 +1701,13 @@ export class PageShell
         this.importedLibs.push(lib);
     }
 }
-export class RowOptions
-{
+export class RowOptions {
     rowHeidth?: string;
     rowClass?: string;
 
     columns?: Col[] = [];
 
-    constructor()
-    {
+    constructor() {
         this.rowClass = 'row';
     }
 }
@@ -1913,8 +1716,7 @@ export class RowOptions
 /**
  * Represents a Row Div with standard Bootstrap class options
  */
-export class Row
-{
+export class Row {
     id: string;
     rowClass: string = 'row';
     rowWidth: string;
@@ -1931,8 +1733,7 @@ export class Row
      * one column is generated automatically. To determine this, 
      * check the static variable `ViewLayout.AUTO_GENERATE_COLUMNS`
      */
-    constructor(id: string, options: RowOptions)
-    {
+    constructor(id: string, options: RowOptions) {
         this.id = id;
 
         if (Misc.isNullOrEmpty(options.rowClass) == false)
@@ -1942,10 +1743,8 @@ export class Row
         if (Misc.isNull(options.columns) == false)
             this.rowColumns = options.columns;
 
-        if ((this.rowColumns == null || this.rowColumns == undefined) || this.rowColumns.length == 0)
-        {
-            if (ViewLayout.AUTO_GENERATE_COLUMNS)
-            {
+        if ((this.rowColumns == null || this.rowColumns == undefined) || this.rowColumns.length == 0) {
+            if (ViewLayout.AUTO_GENERATE_COLUMNS) {
                 var id: string = `col_${Widget.generateUUID()}`;
                 this.generatedColumnId = id;
                 this.rowColumns = [
@@ -1953,10 +1752,8 @@ export class Row
                 ];
             }
         }
-        else
-        {
-            for (var i = 0; i < this.rowColumns.length; i++)
-            {
+        else {
+            for (var i = 0; i < this.rowColumns.length; i++) {
                 var column: Col = this.rowColumns[i];
                 if (Misc.isNullOrEmpty(column.colClass))
                     column.colClass = 'col-md-12 col-xs-12 col-lg-12 col-sm-12'
@@ -1964,15 +1761,12 @@ export class Row
         }
     }
 }
-export class Misc 
-{
-    public static isNull(value: any|object): boolean
-    {
+export class Misc {
+    public static isNull(value: any | object): boolean {
         return (value == null || value == undefined);
     }
 
-    public static isNullOrEmpty(value: any|object): boolean
-    {
+    public static isNullOrEmpty(value: any | object): boolean {
         return (value == null || value == undefined || value == '');
     }
 }
@@ -1981,8 +1775,7 @@ export class Misc
  * which can be persistent (aka 'LocalStorage') 
  * or temporary (aka 'SessionStorage')
  * */
-export abstract class AppStorage
-{
+export abstract class AppStorage {
     protected type: string;
     protected schemaName: string;
 
@@ -1994,8 +1787,7 @@ export abstract class AppStorage
      * @param type 'local' or 'session'
      * @param schemaName A unique name to demarcate a data context
      */
-    constructor(type: string, schemaName: string)
-    {
+    constructor(type: string, schemaName: string) {
         this.type = type;
         this.schemaName = schemaName;
     }
@@ -2038,8 +1830,7 @@ export abstract class AppStorage
  * The purpose of this interface is to provide an instance of the 
  * implementation of the `AppStorage` class
  */
-export interface IAppStorageProvider
-{
+export interface IAppStorageProvider {
     /**
      * Implementing this interface will provide 
      * local and session storage capabilities 
@@ -2065,18 +1856,15 @@ export interface IAppStorageProvider
      */
     onStorageRequested(type: string, schemaName: string): AppStorage;
 }
-export class RhabooInstance
-{
+export class RhabooInstance {
     public name: string = null;
     public instance: any | object = null;
 }
 
-export class RhabooStorageWrapper extends AppStorage
-{
+export class RhabooStorageWrapper extends AppStorage {
     public static INSTANCES: Array<RhabooInstance> = [];
 
-    public static addInstance(instance: RhabooInstance): void
-    {
+    public static addInstance(instance: RhabooInstance): void {
         RhabooStorageWrapper.INSTANCES.push(instance);
     }
 
@@ -2093,8 +1881,7 @@ export class RhabooStorageWrapper extends AppStorage
      * LocalStorage or SessionStorage with great 
      * precision and consistency.
      */
-    constructor(type: string, schemaName: string)
-    {
+    constructor(type: string, schemaName: string) {
         super(type, schemaName);
 
         var rhabooInstanceType = (type == 'local' ? 'persistent' : 'perishable');
@@ -2107,52 +1894,43 @@ export class RhabooStorageWrapper extends AppStorage
         });
         activate.call();
 
-        for (var i = 0; i < RhabooStorageWrapper.INSTANCES.length; i++)
-        {
+        for (var i = 0; i < RhabooStorageWrapper.INSTANCES.length; i++) {
             var instance = RhabooStorageWrapper.INSTANCES[i];
-            if (instance.name == schemaName)
-            {
+            if (instance.name == schemaName) {
                 this.rhaboo = instance;
                 break;
             }
         }
     }
 
-    public write(key: string, value: any): void
-    {
+    public write(key: string, value: any): void {
         this.rhaboo.instance.write(key, value);
     }
-    public update(key: string, value: any): void
-    {
+    public update(key: string, value: any): void {
         this.erase(key);
         this.write(key, value);
     }
-    public erase(key: string): void
-    {
+    public erase(key: string): void {
         this.rhaboo.instance.erase(key);
     }
-    public get(key: string): any | object
-    {
+    public get(key: string): any | object {
         return this.rhaboo.instance[key];
     }
 }
-export class SelectOption
-{
+export class SelectOption {
     public value: any;
     public text: string;
 
-    constructor(opValue: any, opText: string)
-    {
+    constructor(opValue: any, opText: string) {
         this.value = opValue;
         this.text = opText;
     }
 }
-export class ViewDictionaryEntry 
-{
-    originalId : string;
-    managedId : string;
+export class ViewDictionaryEntry {
+    originalId: string;
+    managedId: string;
 
-    constructor(originalId : string, managedId : string) {
+    constructor(originalId: string, managedId: string) {
         this.originalId = originalId;
         this.managedId = managedId;
     }
@@ -2194,11 +1972,10 @@ new ViewLayout('app').fromHTML(`
 `);
  * ```
  */
-export class ViewLayout
-{
+export class ViewLayout {
     public static AUTO_GENERATE_COLUMNS = false;
 
-    
+
     private layoutDOM: Document;
     public layoutRows: Row[];
     public containerDivObj: Element;
@@ -2213,14 +1990,12 @@ export class ViewLayout
      * @param containerDivId Provide the 'Id' of the Div that will contain this layout (and consequently the Widgets elements)
      * @param rows Provide root rows for this layout. Ignore this parameter if you want to provide the layout from raw-html content (via `ViewLayout().fromHTML()`)
      */
-    constructor(containerDivId: string, rows?: Row[])
-    {
+    constructor(containerDivId: string, rows?: Row[]) {
         this.layoutRows = rows;
         this.containerDivName = containerDivId;
     }
 
-    public getRow(rowId: string): Row
-    {
+    public getRow(rowId: string): Row {
         if (this.fromString)
             throw new Error('getRow() is not supported when layout is output over raw html string');
 
@@ -2230,19 +2005,16 @@ export class ViewLayout
         return null as unknown as Row;
     }
 
-    fromHTML(rawHtmlLayoutString: string): ViewLayout
-    {
+    fromHTML(rawHtmlLayoutString: string): ViewLayout {
         this.fromString = true;
         this.rawHtml = rawHtmlLayoutString;
         return this;
     }
 
-    render(shellPage: PageShell, customPresenter?: ILayoutPresenter): Element
-    {
+    render(shellPage: PageShell, customPresenter?: ILayoutPresenter): Element {
         this.containerDivObj = shellPage.elementById(this.containerDivName);
 
-        if (this.fromString)
-        {
+        if (this.fromString) {
             var parser = new DOMParser();
             var dom: Document = parser.parseFromString(this.rawHtml, 'text/html');
             this.layoutDOM = dom;
@@ -2263,10 +2035,8 @@ export class ViewLayout
         return this.layoutPresenter.renderLayout(this, shellPage);
     }
 
-    ElementsIdCollection(): string[]
-    {
-        if (this.fromString)
-        {
+    ElementsIdCollection(): string[] {
+        if (this.fromString) {
             var idCollection: Array<string> = [];
             var nodesWithId: NodeListOf<Element> = this.containerDivObj.querySelectorAll('*[id]');
             for (var i = 0; i < nodesWithId.length; i++)
@@ -2276,18 +2046,14 @@ export class ViewLayout
         return this.ScanRows(this.layoutRows);
     }
 
-    private ScanRows(rows: Row[]): string[]
-    {
+    private ScanRows(rows: Row[]): string[] {
         var result: string[] = [];
-        if (rows !== undefined)
-        {
-            for (var i = 0; i < rows.length; i++)
-            {
+        if (rows !== undefined) {
+            for (var i = 0; i < rows.length; i++) {
                 var row: Row = rows[i];
                 result.push(row.id);
 
-                if (row.rowColumns !== undefined)
-                {
+                if (row.rowColumns !== undefined) {
                     var cols: string[] = this.ScanColumns(row.rowColumns);
                     for (var c = 0; c < cols.length; c++)
                         result.push(cols[c]);
@@ -2297,16 +2063,13 @@ export class ViewLayout
         return result;
     }
 
-    private ScanColumns(columns: Col[]): string[]
-    {
+    private ScanColumns(columns: Col[]): string[] {
         var result: string[] = [];
-        for (var i = 0; i < columns.length; i++)
-        {
+        for (var i = 0; i < columns.length; i++) {
             var col = columns[i];
             result.push(col.id);
 
-            if (col.columnRows !== null)
-            {
+            if (col.columnRows !== null) {
                 var rows: string[] = this.ScanRows(col.columnRows);
                 for (var r = 0; r < rows.length; r++)
                     result.push(rows[r]);
@@ -2325,8 +2088,7 @@ export class ViewLayout
  * and submitting them to its own-WidgetContext.
  * 
  */
-export class WidgetFragment implements INotifiable
-{
+export class WidgetFragment implements INotifiable {
 
     contextRoot: WidgetContext;
     fragmentId: string;
@@ -2339,8 +2101,7 @@ export class WidgetFragment implements INotifiable
      * @param appContextRoot The parent WidgetContext
      * @param containerElement An (Element object) HTML element to compose the adjacent Widgets. Usually Div's.
      */
-    constructor(appContextRoot: WidgetContext, containerElement: HTMLDivElement)
-    {
+    constructor(appContextRoot: WidgetContext, containerElement: HTMLDivElement) {
         this.contextRoot = appContextRoot;
         this.fragmentId = containerElement.getAttribute('id');
 
@@ -2349,9 +2110,8 @@ export class WidgetFragment implements INotifiable
         this.widgets = [];
     }
 
-    clear()
-    {
-      this.containerElement.innerHTML = '';
+    clear() {
+        this.containerElement.innerHTML = '';
     }
 
     /**
@@ -2365,8 +2125,7 @@ export class WidgetFragment implements INotifiable
         widgetName: string,
         messageId: number,
         messageText: string,
-        messageAnyObject: object): void
-    {
+        messageAnyObject: object): void {
 
         this.contextRoot.pushMessage(widgetName,
             messageId,
@@ -2379,10 +2138,8 @@ export class WidgetFragment implements INotifiable
      * @param name Widget Instance Name
      * @returns Widget
      */
-    findWidget(name: string): Widget
-    {
-        for (var i = 0; i < this.widgets.length; i++)
-        {
+    findWidget(name: string): Widget {
+        for (var i = 0; i < this.widgets.length; i++) {
             var widget: Widget = this.widgets[i];
             if (widget.widgetName == name)
                 return widget;
@@ -2397,44 +2154,38 @@ export class WidgetFragment implements INotifiable
      * the parent-Context when the stack is
      * terminated.
      */
-    private onWidgetLoad()
-    {
+    private onWidgetLoad() {
         this.widgetsLoaded += 1;
         if (this.widgetsLoaded == this.widgets.length) //stack is end
             this.contextRoot.onFragmentLoad(); //notify to parent-ctx: "all Widgets been loaded :)""
     }
 
-    resetFragment(): void
-    {
+    resetFragment(): void {
         this.containerElement.innerHTML = '';
     }
 
     /**
      * Renders the Child Widgets stack on the specified Container
      */
-    renderFragmentwidgets()
-    {
+    renderFragmentwidgets() {
         this.widgetsLoaded = 0;
 
         if (this.widgets.length == 0)
             this.contextRoot.onFragmentLoad();
-        else
-        {
+        else {
             var self = this;
             var shell: PageShell = this.contextRoot.contextShell();
 
             self.containerElement.style.opacity = '0';
 
-            for (var i = 0; i < self.widgets.length; i++)
-            {
+            for (var i = 0; i < self.widgets.length; i++) {
                 var widget = self.widgets[i];
                 widget.renderView(this as INotifiable);
             }
 
             var opacity = 0;
-            var interv =     setInterval(function(){
-                if (opacity < 1)
-                {
+            var interv = setInterval(function () {
+                if (opacity < 1) {
                     opacity = opacity + 0.070
                     self.containerElement.style.opacity = opacity.toString();
                 }
@@ -2443,8 +2194,7 @@ export class WidgetFragment implements INotifiable
         }
     }
 
-    onNotified(sender: any, args: any[]): void
-    {
+    onNotified(sender: any, args: any[]): void {
         if (sender == 'FSWidget')
             this.onWidgetLoad();
     }
@@ -2453,10 +2203,8 @@ export class WidgetFragment implements INotifiable
      * Attach a Widget to the Fragment
      * @param widget An Widget object
      */
-    attatchWidget(widget: Widget)
-    {
-        for (var i = 0; i < this.widgets.length; i++)
-        {
+    attatchWidget(widget: Widget) {
+        for (var i = 0; i < this.widgets.length; i++) {
             var existingWidget: Widget = this.widgets[i];
             if (widget.widgetName == existingWidget.widgetName)
                 throw `widget '${widget.widgetName}' has already been attached to this context.`;
@@ -2470,47 +2218,40 @@ export class WidgetFragment implements INotifiable
      * Detach a Widget from the Fragment
      * @param widget An Widget object 
      */
-    dettatchwidget(widget: Widget): void
-    {
+    dettatchwidget(widget: Widget): void {
         var toRemove = -1;
-        for (let index = 0; index < this.widgets.length; index++)
-        {
+        for (let index = 0; index < this.widgets.length; index++) {
             var existingWidget: Widget = this.widgets[index];
-            if (existingWidget.widgetName == widget.widgetName)
-            {
+            if (existingWidget.widgetName == widget.widgetName) {
                 toRemove = index;
                 break;
             }
         }
 
-        if (toRemove > -1)
-        {
+        if (toRemove > -1) {
             this.widgets.splice(toRemove, 1);
             this.containerElement.removeChild(widget.getDOMElement());
             widget.onWidgetDetached();
         }
     }
 
-    appendChildElementToContainer(elementChild: Element)
-    {
+    appendChildElementToContainer(elementChild: Element) {
         this.contextRoot.contextShell().appendChildToElement(
             this.containerElement,
             elementChild
         );
     }
 }
-export class WidgetMessage
-{
+export class WidgetMessage {
     widgetName: string;
     messageId: number;
     messageText: string;
     messageAnyObject: object;
 
-    constructor(widgetName: string, 
-        messageId: number, 
-        messageText: string, 
-        messageAnyObject: object)
-    {
+    constructor(widgetName: string,
+        messageId: number,
+        messageText: string,
+        messageAnyObject: object) {
         this.widgetName = widgetName;
         this.messageId = messageId;
         this.messageText = messageText;
@@ -2528,16 +2269,14 @@ export class WidgetMessage
  * native JavaScript libraries from the written TypeScrit 
  * code.
  */
-export class VirtualFunction
-{
+export class VirtualFunction {
     public functionName: string;
     public functionArgs: string[];
     public functionBodyContent: string;
     private keep: boolean;
     public functionId: string;
 
-    public toString(): string
-    {
+    public toString(): string {
         return `function ${this.functionName}(${this.argNamesStr()});`;
     }
 
@@ -2554,8 +2293,7 @@ export class VirtualFunction
             fnArgNames?: string[],
             fnContent?: string,
             keepAfterCalled?: boolean,
-        })
-    {
+        }) {
         this.functionName = fnName;
         this.keep = keepAfterCalled;
         this.functionArgs = fnArgNames;
@@ -2566,8 +2304,7 @@ export class VirtualFunction
     /**
      * @param fnContent The literal body of the function; NOTE: you must not specify `{ or } ` here. Only the raw body of the function is allowed
      */
-    setContent(fnContent: string): VirtualFunction
-    {
+    setContent(fnContent: string): VirtualFunction {
         this.functionBodyContent = fnContent;
         return this;
     }
@@ -2579,8 +2316,7 @@ export class VirtualFunction
      * function will be inside it
      * @param argValues An array with the VALUES of the arguments defined in the function. Note that you must pass the array according to the actual parameters of the function.
      */
-    call(...argValues: string[]) : void
-    {
+    call(...argValues: string[]): void {
         var argNamesStr = this.argNamesStr();
         var argValuesStr = this.argValuesStr(...argValues);
 
@@ -2597,12 +2333,11 @@ export class VirtualFunction
         var els = document.getElementsByTagName('body');
         els[0].append(fn);
 
-        if(this.keep == false)
-          fn.remove();
+        if (this.keep == false)
+            fn.remove();
     }
 
-    private argValuesStr(...argValues: string[]) : string
-    {
+    private argValuesStr(...argValues: string[]): string {
         var argValuesStr = '';
         for (var a = 0; a < argValues.length; a++)
             argValuesStr += `'${argValues[a]}', `;
@@ -2611,8 +2346,7 @@ export class VirtualFunction
         return argValuesStr;
     }
 
-    private argNamesStr(): string
-    {
+    private argNamesStr(): string {
         var argNamesStr = '';
         for (var a = 0; a < this.functionArgs.length; a++)
             argNamesStr += `${this.functionArgs[a]}, `;
@@ -2626,13 +2360,11 @@ export class VirtualFunction
  * standard Exception view at the point on 
  * the page where an error occurred
  */
-export class DefaultExceptionPage
-{
-    constructor(error: Error)
-    {
-        if(UIPage.DISABLE_EXCEPTION_PAGE)
+export class DefaultExceptionPage {
+    constructor(error: Error) {
+        if (UIPage.DISABLE_EXCEPTION_PAGE)
             return;
-            
+
         var errorsStr = `${error.stack}`.split('\n');
         var title = `${error}`;
         var paneId = Widget.generateUUID();
@@ -2640,13 +2372,11 @@ export class DefaultExceptionPage
         rawHtml += `<img style="padding-left:30px; padding-top: 80px" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAACXBIWXMAAAHYAAAB2AH6XKZyAAAAGXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAABFZJREFUeJztm0GLFEcUx/+vpzurQhaVCKJB/QSehJwjgrCzB4egm4PsIcJOEslNkNw8GQQ9Rp0h5GhcJQ4kuKeQfAEvCehRHNwNaxDUJbqZme56Ocz2Tk93VXXPdndZ7PaD3enueq/q/V6/elU9vQtUUkkllVSyc4VUDVfX/FlitFjgEBgIf1hEjll2zGM6Sj0xfh08/FDZAZvnK4KpefUT92ERAXBUDZbCA4zDDvPtIuC1AbAUPmz/uPQAWAy/2WYkAFbCmwrAdocH9DXAWng2OgVshDc2BWyFNxEAq+HfzxSwB95YDbAW3uwU2L7wQOoUsBTezBSwF95IDbAa3kwGyJ20At5kALYzPLCVnaAN8CYywGb4IpMg+xSwCd5EBuwEeCDLFLAR3lQGbHd4AHCVLebg/2OgVRN8p+d7j6+fprfFIupFGQBD8MsUiPp3p6b+Kh4tm6gzwMCdF8yz194jPJBlGYwcFznnGWhdO/nBnyUwTSTaDCiz4NUE34kO9+1v/iwLbjE23khhpJsshKxpi10XtAKm5vXP5O8S1ctgifBgwHO8J2PjlQE//HUYpH6XOPHTYBHwzMCVT+nf2HDFw4fXwMp3iRM9DRYFP3IsNp4KJOx4S/B6yfw0GPpQCLzKuYiuAH4PhHuMAvcohFhKh+elAP4RDoJjzPhD2q9Esu0DDMMzACHcL27UqQsAC4/4zL5Vf5GZG3J46rx54c21mzQAgEu/rF+AX3uaBg9kqQFlwGuCEAK6YqTVPkGDVwfdOQZ15PDuJjwAuMFGa4ZpoA+ADi4HvNSvWGoz9W8tPGIvbG6foMGbv905cDQISfiFFns+nO/z14Ay4SXOjac2A6CZvav9zjdLPBXqtJs0eNZzzxJwlwU9kMFPH/AXIWgm2fmEATD+PB+FH93h+q7A/2mhNcqE++coeL3qza/9434uhWduZIUHit4HQK6vrNyJMVliw429h5KZUAQ8UOQ+AHL9fPAbp4Lquwf9n6NBCCUPPFDUPkChr4SXOZdiI4TT6z2HiJu92gcB5p60r/A0dw2In+eEV/qjsGFBD+JzPpT75yjoBt55AHfHxolyaCTfPgDYGrwiA+Q21JEVvHhhXHvpzUNQZ6zL3DUAhuAht9EtddMfJQtjl92zoGEmZIEHtroPAPLBy7yL2RDzQ/1SR/Wp9eQSufbSm2fmzH9HPPk+AMgPr7o7ERsfwVfpSx03pvf7i9EgtJs0gCMuSvuVyGT7AMAIfFxFu9RRMgjSfhWS+qVoKfCaIIQ2DtwfL99bv+DXQOT0b2q3t8SND/f3O5fvrX/t10AIaj+ANONERP+dYEnwUr+iNkOFU4Fb6xKAxOof62BYUqjuU60LAWSFB7LUgNC5IuFVNZAlbSnn0mqf1kdEdDVgJTQuA/7Kr7xnbDxBKyXCP5doAtD+xwg1wVgu5c4z8I4Hx8cdpSZAyykgo9PM8LTMcL6UaFdSSSWVVLLj5X+IDiuFkg1oQQAAAABJRU5ErkJggg==" />`;
         rawHtml += `<h4 style="padding-left:30px"> ${title} </h4>`;
         rawHtml += `<p style="padding-left:30px; font-size: 20px">`;
-        for (var i = 0; i < errorsStr.length; i++)
-        {
+        for (var i = 0; i < errorsStr.length; i++) {
             var erro = errorsStr[i];
             var msg = erro.trim();
 
-            if (msg.indexOf('at') == 0)
-            {
+            if (msg.indexOf('at') == 0) {
                 var codePath = msg.substring(3, msg.indexOf('('));
                 codePath = codePath.trim();
                 msg = msg.replace(codePath,
@@ -2660,34 +2390,29 @@ export class DefaultExceptionPage
             <button type="button" onclick="document.getElementById('exceptionPane_${paneId}').remove()" style="margin-left:30px; margin-bottom: 30px" class="btn btn-warning"> Hide </button>
         </div>
         `;
-        
+
         var c = new DOMParser().parseFromString(rawHtml, 'text/html').body;
         document.body.prepend(c);
     }
 }
-export class UIHeadBinder extends WidgetBinder
-{
+export class UIHeadBinder extends WidgetBinder {
     private head: UIHead;
-    constructor(head: UIHead)
-    {
+    constructor(head: UIHead) {
         super(head);
         this.head = head;
     }
 
-    getWidgetValue()
-    {
+    getWidgetValue() {
         return this.head.value();
     }
-    refreshUI(): void
-    {
+    refreshUI(): void {
         var propValue = this.getModelPropertyValue();
         this.head.setText(`${propValue}`);
     }
     fillPropertyModel(): void { }
 }
 
-export class UIHead extends Widget implements IBindable
-{
+export class UIHead extends Widget implements IBindable {
     private headType: string;
     private textContent: string;
     private headElement: HTMLHeadElement;
@@ -2696,8 +2421,7 @@ export class UIHead extends Widget implements IBindable
             name: string,
             headType: string,
             text: string
-        })
-    {
+        }) {
         super(name);
 
         if (headType == '' || headType == null || headType == undefined)
@@ -2709,52 +2433,41 @@ export class UIHead extends Widget implements IBindable
             .replace('/', '')
             .replace('>', '');
     }
-    getBinder(): WidgetBinder
-    {
+    getBinder(): WidgetBinder {
         return new UIHeadBinder(this);
     }
-    protected htmlTemplate(): string
-    {
+    protected htmlTemplate(): string {
         return `<${this.headType} id="fsHead"> </${this.headType}>`
     }
-    protected onWidgetDidLoad(): void
-    {
+    protected onWidgetDidLoad(): void {
         this.headElement = this.elementById('fsHead');
         this.headElement.textContent = this.textContent;
     }
 
-    public setCustomPresenter(presenter: ICustomWidgetPresenter<Widget>): void
-    {
+    public setCustomPresenter(presenter: ICustomWidgetPresenter<Widget>): void {
         presenter.render(this);
     }
 
-    public setText(text: string): void
-    {
+    public setText(text: string): void {
         this.headElement.textContent = text;
     }
 
-    public value(): string
-    {
+    public value(): string {
         return this.headElement.textContent;
     }
-    public setEnabled(enabled: boolean): void
-    {
+    public setEnabled(enabled: boolean): void {
         throw new Error("Method not implemented.");
     }
-    public addCSSClass(className: string): void
-    {
+    public addCSSClass(className: string): void {
         this.headElement.classList.add(className);
     }
-    public removeCSSClass(className: string): void
-    {
+    public removeCSSClass(className: string): void {
         this.headElement.classList.remove(className);
     }
-    public applyCSS(propertyName: string, propertyValue: string): void
-    {
+    public applyCSS(propertyName: string, propertyValue: string): void {
         this.headElement.style.setProperty(propertyName, propertyValue);
     }
-    public setPosition(position: string, marginLeft: string, marginTop: string, marginRight: string, marginBottom: string, transform?: string): void
-    {
+    public setPosition(position: string, marginLeft: string, marginTop: string, marginRight: string, marginBottom: string, transform?: string): void {
         this.headElement.style.position = position;
         this.headElement.style.left = marginLeft;
         this.headElement.style.top = marginTop;
@@ -2762,21 +2475,18 @@ export class UIHead extends Widget implements IBindable
         this.headElement.style.bottom = `${marginBottom}`;
         this.headElement.style.transform = `${transform}`;
     }
-    public setVisible(visible: boolean): void
-    {
+    public setVisible(visible: boolean): void {
         this.headElement.hidden = (visible == false);
     }
 
 }
-export class ModalAction
-{
+export class ModalAction {
     public text: string;
     public classes: string[];
     public onClick?: Function;
     public dismis: boolean;
 
-    constructor(buttonText: string, dataDismiss: boolean, buttonClick?: Function, ...buttonClasses: string[])
-    {
+    constructor(buttonText: string, dataDismiss: boolean, buttonClick?: Function, ...buttonClasses: string[]) {
         this.text = buttonText;
         this.classes = buttonClasses;
         this.onClick = buttonClick;
@@ -2788,25 +2498,21 @@ export class ModalAction
             this.classes = ['btn', 'btn-primary'];
     }
 
-    public setButton(button: HTMLButtonElement, modal: UIDialog)
-    {
+    public setButton(button: HTMLButtonElement, modal: UIDialog) {
         var self = this;
         if (Misc.isNull(this.onClick) == false)
-            button.onclick = function ()
-            {
+            button.onclick = function () {
                 self.onClick(modal);
             };
     }
 }
-export class RadioOption
-{
+export class RadioOption {
     public optionContainer: HTMLDivElement;
     public radioInput: HTMLInputElement;
     public radioLabel: HTMLLabelElement;
 
     constructor(text: string,
-        value: string, fieldSetId: string, shell: PageShell)
-    {
+        value: string, fieldSetId: string, shell: PageShell) {
         var template: UITemplateView = new UITemplateView(
             `<div id="radioOptionContainer" style="margin-right: 10px" class="custom-control custom-radio">
     <input id="radioInput" type="radio" name="fieldset" class="custom-control-input">
@@ -2825,55 +2531,45 @@ export class RadioOption
         this.radioLabel.htmlFor = this.radioInput.id;
     }
 
-    isChecked(): boolean
-    {
+    isChecked(): boolean {
         return this.radioInput.checked;
     }
 
-    value(): string
-    {
+    value(): string {
         return this.radioInput.value;
     }
 
-    setChecked(isChecked: boolean): void
-    {
+    setChecked(isChecked: boolean): void {
         this.radioInput.checked = isChecked;
     }
 
-    setEnabled(isEnabled: boolean): void
-    {
+    setEnabled(isEnabled: boolean): void {
         this.radioInput.disabled = (isEnabled == false);
     }
 }
 
-export class UIRadioGroupBinder extends WidgetBinder
-{
+export class UIRadioGroupBinder extends WidgetBinder {
     private radioGp: UIRadioGroup;
-    constructor(radioGroup: UIRadioGroup)
-    {
+    constructor(radioGroup: UIRadioGroup) {
         super(radioGroup);
         this.radioGp = radioGroup;
     }
 
-    getWidgetValue()
-    {
+    getWidgetValue() {
         return this.radioGp.value();
     }
-    refreshUI(): void
-    {
+    refreshUI(): void {
         var value = this.getModelPropertyValue();
         this.radioGp.setValue(value);
     }
-    fillPropertyModel(): void
-    {
+    fillPropertyModel(): void {
         var value = this.getWidgetValue();
         this.setModelPropertyValue(value);
     }
 
 }
 
-export class UIRadioGroup extends Widget implements IBindable
-{
+export class UIRadioGroup extends Widget implements IBindable {
     public groupContainer: HTMLDivElement;
     public groupTitle: HTMLLabelElement;
     public fieldSet: HTMLFieldSetElement;
@@ -2896,21 +2592,18 @@ export class UIRadioGroup extends Widget implements IBindable
             title?: string,
             orientation?: string,
             options?: Array<any>
-        })
-    {
+        }) {
         super(name);
 
         this.title = title;
         this.orientation = orientation;
         this.initialOptions = options;
     }
-    getBinder(): WidgetBinder
-    {
+    getBinder(): WidgetBinder {
         return new UIRadioGroupBinder(this);
     }
 
-    protected onWidgetDidLoad(): void
-    {
+    protected onWidgetDidLoad(): void {
         this.groupContainer = this.elementById('fsRadioGroup');
         this.groupTitle = this.elementById('groupTitle');
         this.fieldSet = this.elementById('fieldSet');
@@ -2928,8 +2621,7 @@ export class UIRadioGroup extends Widget implements IBindable
         this.addOptions(this.initialOptions);
     }
 
-    protected htmlTemplate(): string
-    {
+    protected htmlTemplate(): string {
         return `
 <div id="fsRadioGroup">
   <label id="groupTitle" class="font-weight-normal" style="margin-left: 3px"> </label>
@@ -2943,17 +2635,14 @@ export class UIRadioGroup extends Widget implements IBindable
      * 
      * @param options  array { t:'Option Text', v: 'option_value' }
      */
-    addOptions(options: Array<any>)
-    {
-        for (var i = 0; i < options.length; i++)
-        {
+    addOptions(options: Array<any>) {
+        for (var i = 0; i < options.length; i++) {
             var op = options[i];
             this.addOption(op.t, op.v);
         }
     }
 
-    addOption(text: string, value: string)
-    {
+    addOption(text: string, value: string) {
         var newOpt: RadioOption = new RadioOption(
             text,
             value,
@@ -2964,10 +2653,8 @@ export class UIRadioGroup extends Widget implements IBindable
         this.fieldSet.appendChild(newOpt.optionContainer);
     }
 
-    fromList(models: Array<any>, textKey: string, valueKey: string)
-    {
-        for (var i = 0; i < models.length; i++)
-        {
+    fromList(models: Array<any>, textKey: string, valueKey: string) {
+        for (var i = 0; i < models.length; i++) {
             var model = models[i];
             var text = model[textKey];
             var value = model[valueKey];
@@ -2975,22 +2662,18 @@ export class UIRadioGroup extends Widget implements IBindable
         }
     }
 
-    public setCustomPresenter(renderer: ICustomWidgetPresenter<Widget>): void
-    {
+    public setCustomPresenter(renderer: ICustomWidgetPresenter<Widget>): void {
         renderer.render(this);
     }
 
-    public selectedOption(): RadioOption
-    {
+    public selectedOption(): RadioOption {
         for (var i = 0; i < this.options.length; i++)
             if (this.options[i].isChecked())
                 return this.options[i];
     }
 
-    public setValue(value: string): void
-    {
-        for (var i = 0; i < this.options.length; i++)
-        {
+    public setValue(value: string): void {
+        for (var i = 0; i < this.options.length; i++) {
             if (this.options[i].value() == value)
                 this.options[i].setChecked(true);
             else
@@ -2998,39 +2681,31 @@ export class UIRadioGroup extends Widget implements IBindable
         }
     }
 
-    public value(): string
-    {
-        for (var i = 0; i < this.options.length; i++)
-        {
+    public value(): string {
+        for (var i = 0; i < this.options.length; i++) {
             var op = this.options[i];
             if (op.isChecked())
                 return op.value();
         }
         return '';
     }
-    public setEnabled(enabled: boolean): void
-    {
-        for (var i = 0; i < this.options.length; i++)
-        {
+    public setEnabled(enabled: boolean): void {
+        for (var i = 0; i < this.options.length; i++) {
             var op = this.options[i];
             op.setEnabled(enabled);
         }
     }
 
-    public addCSSClass(className: string): void
-    {
+    public addCSSClass(className: string): void {
         throw new Error("Method not implemented.");
     }
-    public removeCSSClass(className: string): void
-    {
+    public removeCSSClass(className: string): void {
         throw new Error("Method not implemented.");
     }
-    public applyCSS(propertyName: string, propertyValue: string): void
-    {
+    public applyCSS(propertyName: string, propertyValue: string): void {
         throw new Error("Method not implemented.");
     }
-    public setPosition(position: string, marginLeft: string, marginTop: string, marginRight: string, marginBottom: string, transform?: string): void
-    {
+    public setPosition(position: string, marginLeft: string, marginTop: string, marginRight: string, marginBottom: string, transform?: string): void {
         this.groupContainer.style.position = position;
         this.groupContainer.style.left = marginLeft;
         this.groupContainer.style.top = marginTop;
@@ -3038,14 +2713,12 @@ export class UIRadioGroup extends Widget implements IBindable
         this.groupContainer.style.bottom = marginBottom;
         this.groupContainer.style.transform = transform;
     }
-    public setVisible(visible: boolean): void
-    {
+    public setVisible(visible: boolean): void {
         this.groupContainer.hidden = (visible == false);
     }
 
 }
-export class UIButton extends Widget
-{
+export class UIButton extends Widget {
     public buttonElement: HTMLButtonElement;
     public imageElement: HTMLImageElement;
 
@@ -3062,8 +2735,7 @@ export class UIButton extends Widget
             imageSrc?: string;
             imageWidth?: number,
             btnClass?: string
-        })
-    {
+        }) {
         super(name);
 
         this.imageSrc = imageSrc;
@@ -3072,10 +2744,8 @@ export class UIButton extends Widget
         this.btnClass = btnClass;
     }
 
-    protected htmlTemplate(): string
-    {
-        if (this.imageSrc != '' && this.imageSrc != null && this.imageSrc != undefined)
-        {
+    protected htmlTemplate(): string {
+        if (this.imageSrc != '' && this.imageSrc != null && this.imageSrc != undefined) {
             return `
 <button id="fsButton" type="button" style="height: 35px" class="btn btn-block"> 
      <img alt="img" id="fsButtonImage" src="/icons/sb_menu.png" width="20" ></img> 
@@ -3084,63 +2754,52 @@ export class UIButton extends Widget
         else
             return `<button id="fsButton" type="button" style="height: 35px" class="btn btn-block">Button</button>`
     }
-    protected onWidgetDidLoad(): void
-    {
+    protected onWidgetDidLoad(): void {
         var self = this;
         this.buttonElement = this.elementById('fsButton');
         this.buttonElement.classList.add(this.btnClass);
         this.imageElement = this.elementById('fsButtonImage');
 
         this.setText(this.text);
-        
-        if (self.onClick != null)
-        {
-            this.buttonElement.onclick = function (ev)
-            {
+
+        if (self.onClick != null) {
+            this.buttonElement.onclick = function (ev) {
                 self.onClick(ev);
             };
         }
     }
 
-    public setText(text: string)
-    {
+    public setText(text: string) {
         this.buttonElement.innerText = text;
 
-        if (this.imageSrc != '' && this.imageSrc != null && this.imageSrc != undefined)
-        {
+        if (this.imageSrc != '' && this.imageSrc != null && this.imageSrc != undefined) {
             this.imageElement.src = this.imageSrc;
             this.imageElement.width = this.imageWidth;
             this.buttonElement.appendChild(this.imageElement);
         }
     }
 
-    public value(): string
-    {
+    public value(): string {
         throw new Error("Button does not support value");
     }
 
-    public setVisible(visible: boolean): void
-    {
+    public setVisible(visible: boolean): void {
         this.buttonElement.hidden = (visible == false);
     }
 
-    public setEnabled(enabled: boolean): void
-    {
+    public setEnabled(enabled: boolean): void {
         this.buttonElement.disabled = (enabled == false);
     }
 
-    public addCSSClass(className: string): void
-    {
+    public addCSSClass(className: string): void {
         this.buttonElement.classList.add(className);
     }
 
-    public removeCSSClass(className: string): void
-    {
+    public removeCSSClass(className: string): void {
         this.buttonElement.classList.remove(className);
     }
 
-    public applyCSS(propertyName: string, propertyValue: string): void
-    {
+    public applyCSS(propertyName: string, propertyValue: string): void {
         this.buttonElement.style.setProperty(propertyName, propertyValue);
     }
 
@@ -3149,8 +2808,7 @@ export class UIButton extends Widget
         marginTop: string,
         marginRight?: string,
         marginBottom?: string,
-        transform?: string): void
-    {
+        transform?: string): void {
         this.buttonElement.style.position = position;
         this.buttonElement.style.left = marginLeft;
         this.buttonElement.style.top = marginTop;
@@ -3159,39 +2817,32 @@ export class UIButton extends Widget
         this.buttonElement.style.transform = `${transform}`;
     }
 
-    public setCustomPresenter(renderer: ICustomWidgetPresenter<UIButton>): void
-    {
+    public setCustomPresenter(renderer: ICustomWidgetPresenter<UIButton>): void {
         renderer.render(this);
     }
 }
-export class UICheckBoxBinder extends WidgetBinder
-{
+export class UICheckBoxBinder extends WidgetBinder {
     private checkBox: UICheckBox;
-    constructor(checkBox: UICheckBox)
-    {
+    constructor(checkBox: UICheckBox) {
         super(checkBox);
         this.checkBox = checkBox;
     }
 
-    refreshUI(): void
-    {
+    refreshUI(): void {
         var value = this.getModelPropertyValue();
         this.checkBox.setChecked(value);
     }
-    fillPropertyModel(): void
-    {
+    fillPropertyModel(): void {
         var checked: boolean = this.checkBox.isChecked();
         this.setModelPropertyValue(checked);
     }
-    getWidgetValue()
-    {
+    getWidgetValue() {
         var checked: boolean = this.checkBox.isChecked();
         return checked;
     }
 }
 
-export class UICheckBox extends Widget implements IBindable
-{
+export class UICheckBox extends Widget implements IBindable {
     public divContainer: HTMLDivElement;
     public checkElement: HTMLInputElement;
     public checkLabel: HTMLLabelElement;
@@ -3199,20 +2850,17 @@ export class UICheckBox extends Widget implements IBindable
 
 
     private labelText: string;
-    constructor({name, text }:
-        { name: string; text: string; })
-    {
+    constructor({ name, text }:
+        { name: string; text: string; }) {
         super(name);
 
         this.labelText = text;
     }
-    getBinder(): WidgetBinder
-    {
+    getBinder(): WidgetBinder {
         return new UICheckBoxBinder(this);
     }
 
-    protected htmlTemplate(): string
-    {
+    protected htmlTemplate(): string {
         return `
 <div id="fsCheckBox" class="custom-control custom-checkbox">
   <input id="checkElement" class="custom-control-input" type="checkbox" value="">
@@ -3222,8 +2870,7 @@ export class UICheckBox extends Widget implements IBindable
 </div>`
     }
 
-    protected onWidgetDidLoad(): void
-    {
+    protected onWidgetDidLoad(): void {
         var self = this;
         self.divContainer = self.elementById('fsCheckBox');
         self.checkElement = self.elementById('checkElement');
@@ -3231,49 +2878,40 @@ export class UICheckBox extends Widget implements IBindable
         self.checkLabel.htmlFor = self.checkElement.id;
         self.checkLabel.textContent = self.labelText;
 
-        self.checkElement.onchange = function(ev)
-        {
-            if(self.onCheckedChange != null) self.onCheckedChange({checked: self.checkElement.checked, event: ev});
+        self.checkElement.onchange = function (ev) {
+            if (self.onCheckedChange != null) self.onCheckedChange({ checked: self.checkElement.checked, event: ev });
         };
     }
 
-    public setText(text:string): void
-    {
+    public setText(text: string): void {
         this.labelText = text;
         this.checkLabel.textContent = this.labelText;
     }
 
-    public setCustomPresenter(renderer: ICustomWidgetPresenter<Widget>): void
-    {
+    public setCustomPresenter(renderer: ICustomWidgetPresenter<Widget>): void {
         renderer.render(this);
     }
-    public value(): string
-    {
+    public value(): string {
         return this.checkElement.checked.toString();
     }
-    public setEnabled(enabled: boolean): void
-    {
+    public setEnabled(enabled: boolean): void {
         this.checkElement.disabled = (enabled == false);
     }
-    public addCSSClass(className: string): void
-    {
+    public addCSSClass(className: string): void {
         this.checkElement.classList.add(className);
     }
-    public removeCSSClass(className: string): void
-    {
+    public removeCSSClass(className: string): void {
         this.checkElement.classList.remove(className);
     }
-    public applyCSS(propertyName: string, propertyValue: string): void
-    {
+    public applyCSS(propertyName: string, propertyValue: string): void {
         this.checkElement.style.setProperty(propertyName, propertyValue);
     }
-    public setPosition(position: string, 
+    public setPosition(position: string,
         marginLeft: string,
-        marginTop: string, 
-        marginRight: string, 
-        marginBottom: string, 
-        transform?: string): void
-    {
+        marginTop: string,
+        marginRight: string,
+        marginBottom: string,
+        transform?: string): void {
         this.divContainer.style.position = position;
         this.divContainer.style.left = marginLeft;
         this.divContainer.style.top = marginTop;
@@ -3282,115 +2920,95 @@ export class UICheckBox extends Widget implements IBindable
         this.divContainer.style.transform = `${transform}`;
     }
 
-    public setVisible(visible: boolean): void
-    {
-       this.divContainer.hidden = (visible == false);
+    public setVisible(visible: boolean): void {
+        this.divContainer.hidden = (visible == false);
     }
-    
-    public setChecked(isChecked: boolean): void
-    {
+
+    public setChecked(isChecked: boolean): void {
         this.checkElement.checked = isChecked;
     }
-    public isChecked(): boolean
-    {
+    public isChecked(): boolean {
         return this.checkElement.checked;
     }
 }
-export class UIImageBinder extends WidgetBinder
-{
+export class UIImageBinder extends WidgetBinder {
     private img: UIImage;
-    constructor(image: UIImage)
-    {
+    constructor(image: UIImage) {
         super(image);
         this.img = image;
     }
-    getWidgetValue()
-    {
-       return this.img.value();
+    getWidgetValue() {
+        return this.img.value();
     }
-    refreshUI(): void
-    {
-       var valueModel = this.getModelPropertyValue();
-       this.img.setSource(valueModel);
+    refreshUI(): void {
+        var valueModel = this.getModelPropertyValue();
+        this.img.setSource(valueModel);
     }
     fillPropertyModel(): void { }
 }
 
-export class UIImage extends Widget implements IBindable
-{
+export class UIImage extends Widget implements IBindable {
     public image: HTMLImageElement;
-    
-    private imgSrc:string;
-    private imgAlt:string;
+
+    private imgSrc: string;
+    private imgAlt: string;
     private imgCssClass: string;
 
-    constructor({name, src, cssClass, alt}: 
+    constructor({ name, src, cssClass, alt }:
         {
-          name: string, 
-          src?: string, 
-          cssClass?:string, 
-          alt?: string
-        })
-    {
+            name: string,
+            src?: string,
+            cssClass?: string,
+            alt?: string
+        }) {
         super(name);
 
-        if(cssClass == null)
-           cssClass = 'img-fluid'
-        
+        if (cssClass == null)
+            cssClass = 'img-fluid'
+
         this.imgCssClass = cssClass;
         this.imgSrc = src;
         this.imgAlt = `${alt}`;
     }
-    getBinder(): WidgetBinder
-    {
+    getBinder(): WidgetBinder {
         return new UIImageBinder(this);
     }
 
-    protected htmlTemplate(): string
-    {
+    protected htmlTemplate(): string {
         return `<img id="fsImageView" src="" class="img-fluid" alt="">`;
     }
 
-    protected onWidgetDidLoad(): void
-    {
+    protected onWidgetDidLoad(): void {
         this.image = this.elementById('fsImageView');
         this.image.alt = this.imgAlt;
         this.setSource(this.imgSrc);
         this.addCSSClass(this.imgCssClass);
     }
 
-    public setSource(imgSource: string)
-    {
+    public setSource(imgSource: string) {
         this.imgSrc = imgSource;
         this.image.src = this.imgSrc;
     }
 
-    public setCustomPresenter(renderer: ICustomWidgetPresenter<Widget>): void
-    {
+    public setCustomPresenter(renderer: ICustomWidgetPresenter<Widget>): void {
         renderer.render(this);
     }
-    public value(): string
-    {
+    public value(): string {
         return this.imgSrc;
     }
-    public setEnabled(enabled: boolean): void
-    {
+    public setEnabled(enabled: boolean): void {
         throw new Error("Method not implemented.");
     }
-    public addCSSClass(className: string): void
-    {
+    public addCSSClass(className: string): void {
         this.image.classList.add(className);
     }
-    public removeCSSClass(className: string): void
-    {
+    public removeCSSClass(className: string): void {
         this.image.classList.remove(className);
     }
-    public applyCSS(propertyName: string, propertyValue: string): void
-    {
+    public applyCSS(propertyName: string, propertyValue: string): void {
         this.image.style.setProperty(propertyName, propertyValue);
     }
-    public setPosition(position: string, marginLeft: string, marginTop: string, marginRight: string, marginBottom: string, transform?: string): void
-    {
+    public setPosition(position: string, marginLeft: string, marginTop: string, marginRight: string, marginBottom: string, transform?: string): void {
         this.image.style.position = position;
         this.image.style.left = marginLeft;
         this.image.style.top = marginTop;
@@ -3398,99 +3016,79 @@ export class UIImage extends Widget implements IBindable
         this.image.style.bottom = marginBottom;
         this.image.style.transform = `${transform}`;
     }
-    public setVisible(visible: boolean): void
-    {
+    public setVisible(visible: boolean): void {
         this.image.hidden = (visible == false);
     }
 }
-export class UILabelBinder extends WidgetBinder
-{
+export class UILabelBinder extends WidgetBinder {
     private label: UILabel;
-    constructor(label: UILabel)
-    {
+    constructor(label: UILabel) {
         super(label);
         this.label = label;
     }
 
-    refreshUI(): void
-    {
+    refreshUI(): void {
         var value = this.getModelPropertyValue();
         this.label.setText(`${value}`);
     }
-    fillPropertyModel(): void
-    {
+    fillPropertyModel(): void {
         var text: string = this.label.getText();
         this.setModelPropertyValue(text);
     }
-    getWidgetValue()
-    {
+    getWidgetValue() {
         var text: string = this.label.getText();
         return text;
     }
 }
 
-export class UILabel extends Widget implements IBindable
-{
+export class UILabel extends Widget implements IBindable {
     public label: HTMLLabelElement;
     private lblText: string;
-    constructor({name, text}:
-        {name: string, text: string})
-    {
+    constructor({ name, text }:
+        { name: string, text: string }) {
         super(name);
         this.lblText = text;
     }
-    getBinder(): WidgetBinder
-    {
+    getBinder(): WidgetBinder {
         return new UILabelBinder(this);
     }
-    protected htmlTemplate(): string
-    {
+    protected htmlTemplate(): string {
         return `<label id="fsLabel" class="label"> Default label </label>`;
     }
 
-    protected onWidgetDidLoad(): void
-    {
+    protected onWidgetDidLoad(): void {
         this.label = this.elementById('fsLabel');
         this.label.textContent = this.lblText;
     }
 
-    public getText(): string
-    {
+    public getText(): string {
         return this.value();
     }
 
-    public setText(text: string): void
-    {
+    public setText(text: string): void {
         this.label.textContent = text;
     }
 
-    public setCustomPresenter(renderer: ICustomWidgetPresenter<Widget>): void
-    {
+    public setCustomPresenter(renderer: ICustomWidgetPresenter<Widget>): void {
         renderer.render(this);
     }
-    public value(): string
-    {
+    public value(): string {
         return `${this.label.textContent}`;
     }
 
-    public setEnabled(enabled: boolean): void
-    {
+    public setEnabled(enabled: boolean): void {
         throw new Error("Method not implemented.");
     }
-    public addCSSClass(className: string): void
-    {
+    public addCSSClass(className: string): void {
         this.label.classList.add(className);
     }
-    public removeCSSClass(className: string): void
-    {
+    public removeCSSClass(className: string): void {
         this.label.classList.add(className);
     }
-    public applyCSS(propertyName: string, propertyValue: string): void
-    {
+    public applyCSS(propertyName: string, propertyValue: string): void {
         this.label.style.setProperty(propertyName, propertyValue);
     }
-    public setPosition(position: string, marginLeft: string, marginTop: string, marginRight: string, marginBottom: string, transform?: string): void
-    {
+    public setPosition(position: string, marginLeft: string, marginTop: string, marginRight: string, marginBottom: string, transform?: string): void {
         this.label.style.position = position;
         this.label.style.left = marginLeft;
         this.label.style.top = marginTop;
@@ -3498,27 +3096,22 @@ export class UILabel extends Widget implements IBindable
         this.label.style.bottom = marginBottom;
         this.label.style.transform = `${transform}`;
     }
-    public setVisible(visible: boolean): void
-    {
+    public setVisible(visible: boolean): void {
         this.label.hidden = (visible == false);
     }
 }
-export class UIListBinder extends WidgetBinder
-{
+export class UIListBinder extends WidgetBinder {
     private listView: UIList;
 
-    constructor(listView: UIList)
-    {
+    constructor(listView: UIList) {
         super(listView);
         this.listView = listView;
     }
-    refreshUI(): void
-    {
+    refreshUI(): void {
         var viewModels: Array<any> = this.getModelPropertyValue();
         this.listView.fromList(viewModels, this.valueProperty, this.displayProperty);
     }
-    getWidgetValue()
-    {
+    getWidgetValue() {
         var item = this.listView.selectedItem();
         if (item == null) return null;
         return item.value;
@@ -3526,10 +3119,8 @@ export class UIListBinder extends WidgetBinder
     fillPropertyModel(): void { }
 }
 
-export class UIList extends Widget implements IBindable
-{
-    protected htmlTemplate(): string
-    {
+export class UIList extends Widget implements IBindable {
+    protected htmlTemplate(): string {
         return `
 <div id="fsListView" class="list-group">
 </div>`
@@ -3559,16 +3150,14 @@ export class UIList extends Widget implements IBindable
             name: string;
             itemClicked?: Function,
             templateProvider?: IListItemTemplateProvider
-        })
-    {
+        }) {
         super(name);
 
         this.templateProvider = templateProvider;
         this.itemClickedCallback = itemClicked;
     }
 
-    public setTemplateProvider(itemTemplateProvider: IListItemTemplateProvider)
-    {
+    public setTemplateProvider(itemTemplateProvider: IListItemTemplateProvider) {
         this.templateProvider = itemTemplateProvider;
     }
 
@@ -3579,8 +3168,7 @@ export class UIList extends Widget implements IBindable
      * will be able to obey this
      */
     public changeColors(selectedBack: string, selectedFore: string,
-        unSelectedBack: string, unSelectedFore: string)
-    {
+        unSelectedBack: string, unSelectedFore: string) {
         this.customBehaviorColors = true;
         this.selectedBackColor = selectedBack;
         this.selectedForeColor = selectedFore;
@@ -3588,44 +3176,35 @@ export class UIList extends Widget implements IBindable
         this.unSelectedForeColor = unSelectedFore;
     }
 
-    public itemTemplateProvider(): IListItemTemplateProvider
-    {
+    public itemTemplateProvider(): IListItemTemplateProvider {
         return this.templateProvider;
     }
 
-    getBinder(): WidgetBinder
-    {
+    getBinder(): WidgetBinder {
         return new UIListBinder(this);
     }
 
-    public fromList(viewModels: Array<any>, valueProperty?: string, displayProperty?: string): void
-    {
-        if (viewModels == null || viewModels == undefined || viewModels.length == 0) 
-        {
-            try
-            {
+    public fromList(viewModels: Array<any>, valueProperty?: string, displayProperty?: string): void {
+        if (viewModels == null || viewModels == undefined || viewModels.length == 0) {
+            try {
                 var templateProvider = this.itemTemplateProvider();
-                if (templateProvider != null)
-                {
+                if (templateProvider != null) {
                     var customItem = templateProvider.getListItemTemplate(this, null);
                     if (customItem != null && customItem != undefined)
                         this.addItem(customItem);
                 }
-            } catch (err: any | object | Error)
-            {
+            } catch (err: any | object | Error) {
                 console.error(err);
             }
             return;
         };
         this.divContainer.innerHTML = '';
-        for (var i = 0; i < viewModels.length; i++)
-        {
+        for (var i = 0; i < viewModels.length; i++) {
             var viewModel: any | object = viewModels[i];
             var text = (displayProperty == null ? `${viewModel}` : viewModel[displayProperty]);
             var value = (valueProperty == null ? `${viewModel}` : viewModel[valueProperty]);
 
-            if (this.itemTemplateProvider() == null)
-            {
+            if (this.itemTemplateProvider() == null) {
                 var defaultItemTemplate = new ListItem(
                     `${i + 1}`,
                     text,
@@ -3633,8 +3212,7 @@ export class UIList extends Widget implements IBindable
 
                 this.addItem(defaultItemTemplate);
             }
-            else
-            {
+            else {
                 var templateProvider = this.itemTemplateProvider();
                 var customItem = templateProvider.getListItemTemplate(this, viewModel);
                 this.addItem(customItem);
@@ -3642,13 +3220,11 @@ export class UIList extends Widget implements IBindable
         }
     }
 
-    protected onWidgetDidLoad(): void
-    {
+    protected onWidgetDidLoad(): void {
         this.divContainer = this.elementById('fsListView');
     }
 
-    public onItemClicked(item: IListItemTemplate, ev: Event): void
-    {
+    public onItemClicked(item: IListItemTemplate, ev: Event): void {
         for (var i = 0; i < this.items.length; i++)
             this.items[i].unSelect();
         item.select();
@@ -3656,8 +3232,7 @@ export class UIList extends Widget implements IBindable
             this.itemClickedCallback(item, ev);
     }
 
-    public addItem(item: IListItemTemplate): UIList
-    {
+    public addItem(item: IListItemTemplate): UIList {
         item.setOwnerList(this);
         this.items.push(item);
         var view: HTMLAnchorElement = item.itemTemplate();
@@ -3665,13 +3240,10 @@ export class UIList extends Widget implements IBindable
         return this;
     }
 
-    public removeItem(item: IListItemTemplate): void
-    {
-        for (var i = 0; i < this.divContainer.children.length; i++)
-        {
+    public removeItem(item: IListItemTemplate): void {
+        for (var i = 0; i < this.divContainer.children.length; i++) {
             var view: HTMLAnchorElement = this.divContainer.children[i] as HTMLAnchorElement;
-            if (view.id == item.itemName)
-            {
+            if (view.id == item.itemName) {
                 var indx = this.items.indexOf(item);
                 if (indx >= 0) this.items.splice(indx, 1);
 
@@ -3682,10 +3254,8 @@ export class UIList extends Widget implements IBindable
         }
     }
 
-    public setSelectedValue(itemValue: any): void
-    {
-        for (var i = 0; i < this.items.length; i++)
-        {
+    public setSelectedValue(itemValue: any): void {
+        for (var i = 0; i < this.items.length; i++) {
             var item = this.items[i];
             if (item.value == itemValue)
                 item.select();
@@ -3694,59 +3264,47 @@ export class UIList extends Widget implements IBindable
         }
     }
 
-    public setSelectedItem(selectedItem: IListItemTemplate): void
-    {
-        for (var i = 0; i < this.items.length; i++)
-        {
+    public setSelectedItem(selectedItem: IListItemTemplate): void {
+        for (var i = 0; i < this.items.length; i++) {
             var item = this.items[i];
             item.unSelect();
         }
         selectedItem.select();
     }
 
-    public selectedItem(): IListItemTemplate
-    {
-        for (var i = 0; i < this.items.length; i++)
-        {
+    public selectedItem(): IListItemTemplate {
+        for (var i = 0; i < this.items.length; i++) {
             var item = this.items[i];
             if (item.isSelected())
                 return item;
         }
         return null;
     }
-    public selectedValue(): any | object
-    {
+    public selectedValue(): any | object {
         var sItem = this.selectedItem();
         if (sItem == null || sItem == undefined) return null;
         return sItem.value;
     }
-    public setCustomPresenter(renderer: ICustomWidgetPresenter<Widget>): void
-    {
+    public setCustomPresenter(renderer: ICustomWidgetPresenter<Widget>): void {
         renderer.render(this);
     }
-    public value(): string
-    {
+    public value(): string {
         return this.selectedValue();
     }
-    public setEnabled(enabled: boolean): void
-    {
+    public setEnabled(enabled: boolean): void {
         throw new Error("Method not implemented.");
     }
-    public addCSSClass(className: string): void
-    {
+    public addCSSClass(className: string): void {
         this.divContainer.classList.add(className);
     }
-    public removeCSSClass(className: string): void
-    {
+    public removeCSSClass(className: string): void {
         this.divContainer.classList.remove(className);
     }
 
-    public applyCSS(propertyName: string, propertyValue: string): void
-    {
+    public applyCSS(propertyName: string, propertyValue: string): void {
         this.divContainer.style.setProperty(propertyName, propertyValue);
     }
-    public setPosition(position: string, marginLeft: string, marginTop: string, marginRight: string, marginBottom: string, transform?: string): void
-    {
+    public setPosition(position: string, marginLeft: string, marginTop: string, marginRight: string, marginBottom: string, transform?: string): void {
         this.divContainer.style.position = position;
         this.divContainer.style.left = marginLeft;
         this.divContainer.style.top = marginTop;
@@ -3754,13 +3312,11 @@ export class UIList extends Widget implements IBindable
         this.divContainer.style.bottom = marginBottom;
         this.divContainer.style.transform = transform;
     }
-    public setVisible(visible: boolean): void
-    {
+    public setVisible(visible: boolean): void {
         this.divContainer.hidden = (visible == false);
     }
 }
-export class UIDialog extends Widget implements INotifiable
-{
+export class UIDialog extends Widget implements INotifiable {
     public static $: UIDialog;
 
     private showFunction: VirtualFunction;
@@ -3786,8 +3342,7 @@ export class UIDialog extends Widget implements INotifiable
             title: string;
             contentTemplate: UITemplateView;
             actions: ModalAction[];
-        })
-    {
+        }) {
         super(name);
 
         this.shell = shell;
@@ -3797,8 +3352,7 @@ export class UIDialog extends Widget implements INotifiable
 
         var body: Element = shell.getPageBody();
         var modalDivContainer: Element = shell.elementById('modalContainer');
-        if (modalDivContainer == null)
-        {
+        if (modalDivContainer == null) {
             modalDivContainer = shell.createElement('div');
             modalDivContainer.id = 'modalContainer';
             body.appendChild(modalDivContainer);
@@ -3811,8 +3365,7 @@ export class UIDialog extends Widget implements INotifiable
 
     }
 
-    protected htmlTemplate(): string
-    {
+    protected htmlTemplate(): string {
         return `
  <div id="fsModalView" class="modal fade" role="dialog">
     <div class="modal-dialog" role="document">        
@@ -3836,8 +3389,7 @@ export class UIDialog extends Widget implements INotifiable
 
     }
 
-    protected onWidgetDidLoad(): void
-    {
+    protected onWidgetDidLoad(): void {
         var self = this;
         self.titleElement = self.elementById('modalTitle');
         self.bodyContainer = self.elementById('modalBody');
@@ -3848,10 +3400,9 @@ export class UIDialog extends Widget implements INotifiable
         self.closeButton = self.elementById('closeButton')
 
         self.closeButton.onclick = () => this.close(this)
-        
 
-        for (var i = 0; i < self.modalActions.length; i++)
-        {
+
+        for (var i = 0; i < self.modalActions.length; i++) {
             const action: ModalAction = self.modalActions[i];
             const btn: HTMLButtonElement = self.shell.createElement('button');
             btn.type = 'button';
@@ -3886,8 +3437,7 @@ export class UIDialog extends Widget implements INotifiable
         self.showFunction.call();
     }
 
-    public show(): void
-    {
+    public show(): void {
         this.modalContext.addWidget('modalContainer', this);
         this.modalContext.build(this, false);
         UIDialog.$ = this;
@@ -3896,45 +3446,36 @@ export class UIDialog extends Widget implements INotifiable
         var node = document.getElementById(dialog.getDOMElement().id);
         if (node.parentNode) {
             node.parentNode.removeChild(node);
-          }
+        }
     }
 
-    public setCustomPresenter(renderer: ICustomWidgetPresenter<Widget>): void
-    {
+    public setCustomPresenter(renderer: ICustomWidgetPresenter<Widget>): void {
         renderer.render(this);
     }
-    public value(): string
-    {
+    public value(): string {
         throw new Error("Method not implemented.");
     }
-    public setEnabled(enabled: boolean): void
-    {
+    public setEnabled(enabled: boolean): void {
         throw new Error("Method not implemented.");
     }
-    public addCSSClass(className: string): void
-    {
+    public addCSSClass(className: string): void {
         throw new Error("Method not implemented.");
     }
-    public removeCSSClass(className: string): void
-    {
+    public removeCSSClass(className: string): void {
         throw new Error("Method not implemented.");
     }
-    public applyCSS(propertyName: string, propertyValue: string): void
-    {
+    public applyCSS(propertyName: string, propertyValue: string): void {
         throw new Error("Method not implemented.");
     }
-    public setPosition(position: string, marginLeft: string, marginTop: string, marginRight: string, marginBottom: string, transform?: string): void
-    {
+    public setPosition(position: string, marginLeft: string, marginTop: string, marginRight: string, marginBottom: string, transform?: string): void {
         throw new Error("Method not implemented.");
     }
-    public setVisible(visible: boolean): void
-    {
+    public setVisible(visible: boolean): void {
         throw new Error("Method not implemented.");
     }
 
 }
-export class UINavBar extends Widget
-{
+export class UINavBar extends Widget {
 
     public navBar: HTMLDivElement;
     public leftLinks: HTMLUListElement;
@@ -3942,13 +3483,11 @@ export class UINavBar extends Widget
     public brandText: HTMLAnchorElement;
     public pushMenuButton: HTMLAnchorElement;
 
-    constructor(name: string)
-    {
+    constructor(name: string) {
         super(name);
     }
 
-    protected htmlTemplate(): string
-    {
+    protected htmlTemplate(): string {
         return `
 <nav id="fsNavbar" class="navbar fixed-top">
   
@@ -3969,8 +3508,7 @@ export class UINavBar extends Widget
 </nav>`
     }
 
-    onWidgetDidLoad(): void
-    {
+    onWidgetDidLoad(): void {
         this.navBar = this.elementById('fsNavbar');
         this.leftLinks = this.elementById('navLeftLinks')
         this.rightLinks = this.elementById('navRightLinks')
@@ -3982,30 +3520,24 @@ export class UINavBar extends Widget
         this.navBar.style.boxShadow = '0 0 1em lightgray';
     }
 
-    public setEnabled(enabled: boolean): void
-    {
+    public setEnabled(enabled: boolean): void {
         throw new Error("Method not implemented.");
     }
-    public value(): string
-    {
+    public value(): string {
         throw new Error("Method not implemented.");
     }
-    public addCSSClass(className: string): void
-    {
+    public addCSSClass(className: string): void {
         this.navBar.classList.add(className);
     }
 
-    public removeCSSClass(className: string): void
-    {
+    public removeCSSClass(className: string): void {
         this.navBar.classList.remove(className);
     }
 
-    public applyCSS(propertyName: string, propertyValue: string): void
-    {
+    public applyCSS(propertyName: string, propertyValue: string): void {
         this.navBar.style.setProperty(propertyName, propertyValue);
     }
-    public setPosition(position: string, marginLeft: string, marginTop: string, marginRight: string, marginBottom: string, transform?: string): void
-    {
+    public setPosition(position: string, marginLeft: string, marginTop: string, marginRight: string, marginBottom: string, transform?: string): void {
         this.navBar.style.position = position;
         this.navBar.style.left = marginLeft;
         this.navBar.style.top = marginTop;
@@ -4013,75 +3545,58 @@ export class UINavBar extends Widget
         this.navBar.style.bottom = marginBottom;
         this.navBar.style.transform = transform;
     }
-    public setVisible(visible: boolean): void
-    {
+    public setVisible(visible: boolean): void {
         this.navBar.hidden = (visible == false);
     }
-    public setCustomPresenter(renderer: ICustomWidgetPresenter<Widget>): void
-    {
+    public setCustomPresenter(renderer: ICustomWidgetPresenter<Widget>): void {
         renderer.render(this);
     }
 
 
 }
-export class UIProgressBar extends Widget
-{
-    protected onWidgetDidLoad(): void
-    {
+export class UIProgressBar extends Widget {
+    protected onWidgetDidLoad(): void {
         throw new Error("Method not implemented.");
     }
-    protected htmlTemplate(): string
-    {
+    protected htmlTemplate(): string {
         throw new Error("Method not implemented.");
     }
-    public setCustomPresenter(renderer: ICustomWidgetPresenter<Widget>): void
-    {
+    public setCustomPresenter(renderer: ICustomWidgetPresenter<Widget>): void {
         throw new Error("Method not implemented.");
     }
-    public value(): string
-    {
+    public value(): string {
         throw new Error("Method not implemented.");
     }
-    public setEnabled(enabled: boolean): void
-    {
+    public setEnabled(enabled: boolean): void {
         throw new Error("Method not implemented.");
     }
-    public addCSSClass(className: string): void
-    {
+    public addCSSClass(className: string): void {
         throw new Error("Method not implemented.");
     }
-    public removeCSSClass(className: string): void
-    {
+    public removeCSSClass(className: string): void {
         throw new Error("Method not implemented.");
     }
-    public applyCSS(propertyName: string, propertyValue: string): void
-    {
+    public applyCSS(propertyName: string, propertyValue: string): void {
         throw new Error("Method not implemented.");
     }
-    public setPosition(position: string, marginLeft: string, marginTop: string, marginRight: string, marginBottom: string, transform?: string): void
-    {
+    public setPosition(position: string, marginLeft: string, marginTop: string, marginRight: string, marginBottom: string, transform?: string): void {
         throw new Error("Method not implemented.");
     }
-    public setVisible(visible: boolean): void
-    {
+    public setVisible(visible: boolean): void {
         throw new Error("Method not implemented.");
     }
-    
+
 }
-export class UISelectBinder extends WidgetBinder
-{
+export class UISelectBinder extends WidgetBinder {
     private select: UISelect;
-    constructor(select: UISelect)
-    {
+    constructor(select: UISelect) {
         super(select);
         this.select = select;
     }
-    getWidgetValue()
-    {
+    getWidgetValue() {
         return this.select.value();
     }
-    refreshUI(): void
-    {
+    refreshUI(): void {
         var models: Array<any | object> = this.getModelPropertyValue();
         if (this.bindingHasPath)
             this.select.fromList(models, this.valueProperty, this.displayProperty);
@@ -4091,10 +3606,8 @@ export class UISelectBinder extends WidgetBinder
     fillPropertyModel(): void { }
 }
 
-export class UISelect extends Widget implements IBindable
-{
-    protected htmlTemplate(): string
-    {
+export class UISelect extends Widget implements IBindable {
+    protected htmlTemplate(): string {
         return `
 <div id="fsSelect" class="form-group">
     <label id="selectTitle" style="margin: 0px; padding: 0px; font-weight:normal !important;" for="selectEl"> Select Title </label>
@@ -4113,65 +3626,53 @@ export class UISelect extends Widget implements IBindable
         {
             name: string,
             title: string
-        })
-    {
+        }) {
         super(name);
         this.initialTitle = title;
     }
-    getBinder(): WidgetBinder
-    {
+    getBinder(): WidgetBinder {
         return new UISelectBinder(this);;
     }
 
-    protected onWidgetDidLoad(): void
-    {
+    protected onWidgetDidLoad(): void {
         var self = this;
 
         this.divContainer = this.elementById('fsSelect');
         this.title = this.elementById('selectTitle');
         this.select = this.elementById('selectEl');
 
-        this.select.onchange = function (ev)
-        {
+        this.select.onchange = function (ev) {
             if (self.onSelectionChanged != null)
                 self.onSelectionChanged(ev);
         };
         this.title.textContent = this.initialTitle;
 
     }
-    public setSelectedOption(optionValue: any): void
-    {
-        try
-        {
+    public setSelectedOption(optionValue: any): void {
+        try {
             for (var i = 0; i < this.select.options.length; i++)
                 this.select.options[i].selected = false;
 
-            for (var i = 0; i < this.select.options.length; i++)
-            {
+            for (var i = 0; i < this.select.options.length; i++) {
                 var option = this.select.options[i];
 
-                if (option.value == optionValue)
-                {
+                if (option.value == optionValue) {
                     option.selected = true;
                     return;
                 }
             }
-        } catch (error)
-        {
+        } catch (error) {
             this.processError(error);
         }
     }
 
     public fromList(models: Array<any>,
         valueProperty?: string,
-        displayProperty?: string): void
-    {
+        displayProperty?: string): void {
         if (models == null || models == undefined) return;
-        try
-        {
+        try {
             var optionsFromModels: Array<SelectOption> = [];
-            for (var i = 0; i < models.length; i++)
-            {
+            for (var i = 0; i < models.length; i++) {
                 var model = models[i];
                 var option: SelectOption = null;
 
@@ -4184,71 +3685,57 @@ export class UISelect extends Widget implements IBindable
             }
             this.addOptions(optionsFromModels);
         }
-        catch (error)
-        {
+        catch (error) {
             this.processError(error);
         }
     }
 
-    public addOptions(options: Array<SelectOption>): void
-    {
+    public addOptions(options: Array<SelectOption>): void {
         this.select.innerHTML = '';
         for (var i = 0; i < options.length; i++)
             this.addOption(options[i]);
     }
 
-    public addOption(option: SelectOption): UISelect
-    {
-        try
-        {
+    public addOption(option: SelectOption): UISelect {
+        try {
             var optionEL: HTMLOptionElement = document.createElement('option');
             optionEL.value = option.value;
             optionEL.textContent = option.text;
             this.select.add(optionEL);
             return this;
         }
-        catch (error)
-        {
+        catch (error) {
             this.processError(error);
         }
     }
 
-    public setTitle(title: string): void
-    {
+    public setTitle(title: string): void {
         this.title.textContent = title;
     }
 
-    public setCustomPresenter(renderer: ICustomWidgetPresenter<Widget>): void
-    {
-        try
-        {
+    public setCustomPresenter(renderer: ICustomWidgetPresenter<Widget>): void {
+        try {
             renderer.render(this);
         }
-        catch (error)
-        {
+        catch (error) {
             this.processError(error);
         }
     }
 
-    public value(): string
-    {
+    public value(): string {
         return this.select.value;
     }
-    public addCSSClass(className: string): void
-    {
+    public addCSSClass(className: string): void {
         this.select.classList.add(className);
     }
 
-    public removeCSSClass(className: string): void
-    {
+    public removeCSSClass(className: string): void {
         this.select.classList.remove(className);
     }
-    public applyCSS(propertyName: string, propertyValue: string): void
-    {
+    public applyCSS(propertyName: string, propertyValue: string): void {
         this.select.style.setProperty(propertyName, propertyValue);
     }
-    public setPosition(position: string, marginLeft: string, marginTop: string, marginRight: string, marginBottom: string, transform?: string): void
-    {
+    public setPosition(position: string, marginLeft: string, marginTop: string, marginRight: string, marginBottom: string, transform?: string): void {
         this.divContainer.style.position = position;
         this.divContainer.style.left = marginLeft;
         this.divContainer.style.top = marginTop;
@@ -4256,18 +3743,15 @@ export class UISelect extends Widget implements IBindable
         this.divContainer.style.bottom = marginBottom;
         this.divContainer.style.transform = transform;
     }
-    public setVisible(visible: boolean): void
-    {
+    public setVisible(visible: boolean): void {
         this.divContainer.hidden = (visible == false);
     }
 
-    public setEnabled(enabled: boolean): void
-    {
+    public setEnabled(enabled: boolean): void {
         this.select.disabled = (enabled == false);
     }
 }
-export class UISpinner extends Widget
-{
+export class UISpinner extends Widget {
     private colorCls: string;
     private initialVisible: boolean;
 
@@ -4279,22 +3763,19 @@ export class UISpinner extends Widget
             name: string,
             colorClass: string,
             visible: boolean
-        })
-    {
+        }) {
         super(name);
         this.colorCls = colorClass;
         this.initialVisible = visible;
     }
 
-    protected onWidgetDidLoad(): void
-    {
+    protected onWidgetDidLoad(): void {
         this.containerDiv = this.elementById('container');
         this.spanSpinner = this.elementById('spnSpinner');
 
         this.setVisible(this.initialVisible);
     }
-    protected htmlTemplate(): string
-    {
+    protected htmlTemplate(): string {
         var colorClass = this.colorCls;
         if (colorClass == 'primary') colorClass = 'text-primary';
         if (colorClass == '') colorClass = 'text-primary';
@@ -4305,86 +3786,66 @@ export class UISpinner extends Widget
 </div>
         `
     }
-    public setCustomPresenter(renderer: ICustomWidgetPresenter<Widget>): void
-    {
+    public setCustomPresenter(renderer: ICustomWidgetPresenter<Widget>): void {
         renderer.render(this);
     }
-    public value(): string
-    {
+    public value(): string {
         return null;
     }
-    public setEnabled(enabled: boolean): void
-    {
+    public setEnabled(enabled: boolean): void {
 
     }
-    public addCSSClass(className: string): void
-    {
+    public addCSSClass(className: string): void {
 
     }
-    public removeCSSClass(className: string): void
-    {
+    public removeCSSClass(className: string): void {
 
     }
-    public applyCSS(propertyName: string, propertyValue: string): void
-    {
-        
+    public applyCSS(propertyName: string, propertyValue: string): void {
+
     }
-    public setPosition(position: string, marginLeft: string, marginTop: string, marginRight: string, marginBottom: string, transform?: string): void
-    {
-        
+    public setPosition(position: string, marginLeft: string, marginTop: string, marginRight: string, marginBottom: string, transform?: string): void {
+
     }
-    public setVisible(visible: boolean): void
-    {
+    public setVisible(visible: boolean): void {
         this.containerDiv.hidden = (visible == false);
     }
 
 }
-export class UISwitcher extends Widget
-{
-    protected onWidgetDidLoad(): void
-    {
+export class UISwitcher extends Widget {
+    protected onWidgetDidLoad(): void {
         throw new Error("Method not implemented.");
     }
-    protected htmlTemplate(): string
-    {
+    protected htmlTemplate(): string {
         throw new Error("Method not implemented.");
     }
-    public setCustomPresenter(renderer: ICustomWidgetPresenter<Widget>): void
-    {
+    public setCustomPresenter(renderer: ICustomWidgetPresenter<Widget>): void {
         throw new Error("Method not implemented.");
     }
-    public value(): string
-    {
+    public value(): string {
         throw new Error("Method not implemented.");
     }
-    public setEnabled(enabled: boolean): void
-    {
+    public setEnabled(enabled: boolean): void {
         throw new Error("Method not implemented.");
     }
-    public addCSSClass(className: string): void
-    {
+    public addCSSClass(className: string): void {
         throw new Error("Method not implemented.");
     }
-    public removeCSSClass(className: string): void
-    {
+    public removeCSSClass(className: string): void {
         throw new Error("Method not implemented.");
     }
-    public applyCSS(propertyName: string, propertyValue: string): void
-    {
+    public applyCSS(propertyName: string, propertyValue: string): void {
         throw new Error("Method not implemented.");
     }
-    public setPosition(position: string, marginLeft: string, marginTop: string, marginRight: string, marginBottom: string, transform?: string): void
-    {
+    public setPosition(position: string, marginLeft: string, marginTop: string, marginRight: string, marginBottom: string, transform?: string): void {
         throw new Error("Method not implemented.");
     }
-    public setVisible(visible: boolean): void
-    {
+    public setVisible(visible: boolean): void {
         throw new Error("Method not implemented.");
     }
 
 }
-export class Mask
-{
+export class Mask {
     /** 00/00/0000 */
     public static DATE: string = '00/00/0000';
 
@@ -4424,8 +3885,7 @@ export class Mask
     /**##0,00% */
     public static PERCENT: string = '##0,00%';
 
-    public static array(): Array<string>
-    {
+    public static array(): Array<string> {
         return [
             this.DATE,
             this.TIME,
@@ -4444,43 +3904,35 @@ export class Mask
     }
 }
 
-export class UITextBoxBinder extends WidgetBinder
-{
+export class UITextBoxBinder extends WidgetBinder {
     private textBox: UITextBox;
-    constructor(textBox: UITextBox) 
-    {
+    constructor(textBox: UITextBox) {
         super(textBox);
         this.textBox = this.widget as UITextBox;
     }
-    refreshUI(): void
-    {
+    refreshUI(): void {
         var value = this.getModelPropertyValue();
         this.textBox.setText(`${value}`);
     }
-    fillPropertyModel(): void
-    {
+    fillPropertyModel(): void {
         var text: string = this.textBox.getText();
         this.setModelPropertyValue(text);
     }
-    getWidgetValue()
-    {
+    getWidgetValue() {
         var text: string = this.textBox.getText();
         return text;
     }
 }
 
-export class UITextBox extends Widget implements IBindable
-{
-    protected htmlTemplate(): string
-    {
+export class UITextBox extends Widget implements IBindable {
+    protected htmlTemplate(): string {
         return `
 <div id="textEntry" class="form-group">
     <label id="entryTitle" style="margin: 0px; padding: 0px; font-weight:normal !important;" for="inputEntry"> Entry Title </label>
     <input id="entryInput" class="form-control form-control-sm"  placeholder="Entry placeholder">
 </div>`
     }
-    public setEnabled(enabled: boolean): void
-    {
+    public setEnabled(enabled: boolean): void {
         this.txInput.disabled = (enabled == false);
     }
 
@@ -4503,8 +3955,7 @@ export class UITextBox extends Widget implements IBindable
             title?: string;
             placeHolder?: string;
             text?: string;
-        })
-    {
+        }) {
         super(name);
 
         this.initialType = (Misc.isNullOrEmpty(type) ? 'text' : type);
@@ -4513,13 +3964,11 @@ export class UITextBox extends Widget implements IBindable
         this.initialText = (Misc.isNullOrEmpty(text) ? '' : text);
         this.initialMaxlength = (Misc.isNullOrEmpty(maxlength) ? 100 : maxlength);
     }
-    getBinder(): WidgetBinder
-    {
+    getBinder(): WidgetBinder {
         return new UITextBoxBinder(this);
     }
 
-    applyMask(maskPattern: string): void
-    {
+    applyMask(maskPattern: string): void {
         //making jQuery call
         var jQueryCall = `$('#${this.txInput.id}').mask('${maskPattern}'`;
         var a = Mask.array();
@@ -4540,75 +3989,62 @@ export class UITextBox extends Widget implements IBindable
         maskFunction.call();
     }
 
-    public setCustomPresenter(renderer: ICustomWidgetPresenter<UITextBox>): void
-    {
+    public setCustomPresenter(renderer: ICustomWidgetPresenter<UITextBox>): void {
         renderer.render(this);
     }
 
-    public setInputType(inputType: string): void
-    {
+    public setInputType(inputType: string): void {
         this.txInput.type = inputType;
     }
 
-    onWidgetDidLoad(): void
-    {
+    onWidgetDidLoad(): void {
         this.lbTitle = this.elementById('entryTitle');
         this.txInput = this.elementById('entryInput');
         this.divContainer = this.elementById('textEntry');
         this.lbTitle.innerText = this.initialTitle;
         this.txInput.placeholder = this.initialPlaceHolder;
         this.txInput.value = this.initialText;
-        
+
         this.setMaxLength(this.initialMaxlength);
         this.setInputType(this.initialType);
     }
 
-    public setMaxLength(maxlength: number): void
-    {
+    public setMaxLength(maxlength: number): void {
         this.txInput.maxLength = maxlength;
     }
 
-    public removeLabel()
-    {
+    public removeLabel() {
         this.lbTitle.remove();
     }
-    public setPlaceholder(text: string): void
-    {
+    public setPlaceholder(text: string): void {
         this.txInput.placeholder = text;
     }
 
-    public getText(): string
-    {
+    public getText(): string {
         return this.value();
     }
 
-    public setText(newText: string): void
-    {
+    public setText(newText: string): void {
         this.txInput.value = (Misc.isNullOrEmpty(newText) ? '' : newText);
     }
 
-    public setTitle(newTitle: string): void
-    {
+    public setTitle(newTitle: string): void {
         this.lbTitle.textContent = newTitle;
     }
 
-    public value(): string
-    {
+    public value(): string {
         return this.txInput.value;
     }
 
-    public addCSSClass(className: string): void 
-    {
+    public addCSSClass(className: string): void {
         this.txInput.classList.add(className);
     }
 
-    public removeCSSClass(className: string): void
-    {
+    public removeCSSClass(className: string): void {
         this.txInput.classList.remove(className);
     }
 
-    public applyCSS(propertyName: string, propertyValue: string): void 
-    {
+    public applyCSS(propertyName: string, propertyValue: string): void {
         this.txInput.style.setProperty(propertyName, propertyValue);
     }
 
@@ -4617,8 +4053,7 @@ export class UITextBox extends Widget implements IBindable
         marginTop: string,
         marginRight: string,
         marginBottom: string,
-        transform?: string): void 
-    {
+        transform?: string): void {
         this.divContainer.style.position = position;
         this.divContainer.style.left = marginLeft;
         this.divContainer.style.top = marginTop;
@@ -4627,58 +4062,45 @@ export class UITextBox extends Widget implements IBindable
         this.divContainer.style.transform = transform;
     }
 
-    public setVisible(visible: boolean): void 
-    {
+    public setVisible(visible: boolean): void {
         this.divContainer.hidden = (visible == false);
     }
 
 }
-export class UIToast extends Widget
-{
-    protected onWidgetDidLoad(): void
-    {
+export class UIToast extends Widget {
+    protected onWidgetDidLoad(): void {
         throw new Error("Method not implemented.");
     }
-    protected htmlTemplate(): string
-    {
+    protected htmlTemplate(): string {
         throw new Error("Method not implemented.");
     }
-    public setCustomPresenter(renderer: ICustomWidgetPresenter<Widget>): void
-    {
+    public setCustomPresenter(renderer: ICustomWidgetPresenter<Widget>): void {
         throw new Error("Method not implemented.");
     }
-    public value(): string
-    {
+    public value(): string {
         throw new Error("Method not implemented.");
     }
-    public setEnabled(enabled: boolean): void
-    {
+    public setEnabled(enabled: boolean): void {
         throw new Error("Method not implemented.");
     }
-    public addCSSClass(className: string): void
-    {
+    public addCSSClass(className: string): void {
         throw new Error("Method not implemented.");
     }
-    public removeCSSClass(className: string): void
-    {
+    public removeCSSClass(className: string): void {
         throw new Error("Method not implemented.");
     }
-    public applyCSS(propertyName: string, propertyValue: string): void
-    {
+    public applyCSS(propertyName: string, propertyValue: string): void {
         throw new Error("Method not implemented.");
     }
-    public setPosition(position: string, marginLeft: string, marginTop: string, marginRight: string, marginBottom: string, transform?: string): void
-    {
+    public setPosition(position: string, marginLeft: string, marginTop: string, marginRight: string, marginBottom: string, transform?: string): void {
         throw new Error("Method not implemented.");
     }
-    public setVisible(visible: boolean): void
-    {
+    public setVisible(visible: boolean): void {
         throw new Error("Method not implemented.");
     }
-    
+
 }
-export class DataGridItem implements IDataGridItemTemplate
-{
+export class DataGridItem implements IDataGridItemTemplate {
     public value: any;
     public itemName: string;
     private ownerDatagrid: UIDataGrid;
@@ -4689,52 +4111,44 @@ export class DataGridItem implements IDataGridItemTemplate
 
     constructor(name: string,
         model: any | object,
-        pageShell: PageShell)
-    {
+        pageShell: PageShell) {
         this.pageShell = pageShell;
         this.itemName = name;
         this.value = model;
     }
 
-    setOwnerDataGrid(dataGrid: UIDataGrid): void
-    {
+    setOwnerDataGrid(dataGrid: UIDataGrid): void {
         this.ownerDatagrid = dataGrid;
     }
-    isSelected(): boolean
-    {
+    isSelected(): boolean {
         return this.selected;
     }
-    select(): void
-    {
+    select(): void {
         this.selected = true;
         this.rowElement.style.background = this.ownerDatagrid.selectedBackColor;
         this.rowElement.style.color = this.ownerDatagrid.selectedForeColor;
     }
-    unSelect(): void
-    {
+    unSelect(): void {
         this.selected = false;
         this.rowElement.style.background = this.ownerDatagrid.unselectedBackColor;
         this.rowElement.style.color = this.ownerDatagrid.unselectedForeColor;
     }
-    itemTemplate(): HTMLTableRowElement
-    {
+    itemTemplate(): HTMLTableRowElement {
         var self = this;
         if (self.rowElement != null)
             return self.rowElement;
 
         var model = self.value;
         var tr = self.pageShell.createElement('tr')
-        
-        for (var k = 0; k < this.ownerDatagrid.MODEL_KEYS.length; k++)
-        {
+
+        for (var k = 0; k < this.ownerDatagrid.MODEL_KEYS.length; k++) {
             var key = this.ownerDatagrid.MODEL_KEYS[k];
             var td = this.pageShell.createElement('td');
 
             td.innerText = model[key];
             tr.appendChild(td);
         }
-        tr.onclick = function (ev)
-        {
+        tr.onclick = function (ev) {
             self.ownerDatagrid.onRowClick(self);
         };
 
@@ -4742,12 +4156,10 @@ export class DataGridItem implements IDataGridItemTemplate
         return tr;
     }
 }
-export interface IDataGridItemTemplateProvider
-{
+export interface IDataGridItemTemplateProvider {
     getDataGridItemTemplate(sender: UIDataGrid, viewModel: any | object): IDataGridItemTemplate;
 }
-export interface IDataGridItemTemplate
-{
+export interface IDataGridItemTemplate {
     value: any | object;
     itemName: string;
     setOwnerDataGrid(dataGrid: UIDataGrid): void;
@@ -4756,13 +4168,11 @@ export interface IDataGridItemTemplate
     unSelect(): void;
     itemTemplate(): HTMLTableRowElement;
 }
-export interface IListItemTemplateProvider
-{
-    getListItemTemplate(sender: UIList, viewModel: any|object): IListItemTemplate;
+export interface IListItemTemplateProvider {
+    getListItemTemplate(sender: UIList, viewModel: any | object): IListItemTemplate;
 }
-export interface IListItemTemplate 
-{
-    value: any|object;
+export interface IListItemTemplate {
+    value: any | object;
     itemName: string;
     setOwnerList(listView: UIList): void;
     isSelected(): boolean;
@@ -4770,8 +4180,7 @@ export interface IListItemTemplate
     unSelect(): void;
     itemTemplate(): HTMLAnchorElement;
 }
-export class ListItem implements IListItemTemplate
-{
+export class ListItem implements IListItemTemplate {
     public value: any | object;
     public itemName: string;
     public itemText: string;
@@ -4790,8 +4199,7 @@ export class ListItem implements IListItemTemplate
         text: string,
         value?: any | object,
         imageSrc: string = null,
-        badgeText: string = null)
-    {
+        badgeText: string = null) {
         this.value = value;
         this.itemName = name;
         this.itemText = text;
@@ -4799,47 +4207,38 @@ export class ListItem implements IListItemTemplate
         this.itemBadgeText = badgeText;
     }
 
-    public setImg(src: string): void
-    {
-        if (Misc.isNullOrEmpty(src))
-        {
+    public setImg(src: string): void {
+        if (Misc.isNullOrEmpty(src)) {
             this.imgElement.hidden = true;
             this.imgElement.width = 0;
         }
-        else
-        {
+        else {
             if (this.imgElement.hidden == true) this.imgElement.hidden = false;
             if (this.imgElement.width == 0) this.imgElement.width = 30;
             this.imgElement.src = src;
         }
     }
 
-    public setText(text: string): void
-    {
+    public setText(text: string): void {
         this.divElement.textContent = text;
     }
 
-    public setBadgeText(badgeText: string): void
-    {
+    public setBadgeText(badgeText: string): void {
         this.badgeElement.textContent = badgeText;
     }
 
-    public setOwnerList(listView: UIList)
-    {
+    public setOwnerList(listView: UIList) {
         this.ownerList = listView;
     }
 
-    public isSelected(): boolean
-    {
+    public isSelected(): boolean {
         return this.selected;
     }
 
-    public select(): void
-    {
+    public select(): void {
         this.selected = true;
 
-        if (this.ownerList.customBehaviorColors)
-        {
+        if (this.ownerList.customBehaviorColors) {
             this.anchorElement.style.color = this.ownerList.selectedForeColor;
             this.anchorElement.style.backgroundColor = this.ownerList.selectedBackColor;
         }
@@ -4847,11 +4246,9 @@ export class ListItem implements IListItemTemplate
             this.anchorElement.classList.add('active');
     }
 
-    public unSelect(): void
-    {
+    public unSelect(): void {
         this.selected = false;
-        if (this.ownerList.customBehaviorColors)
-        {
+        if (this.ownerList.customBehaviorColors) {
             this.anchorElement.style.color = this.ownerList.unSelectedForeColor;
             this.anchorElement.style.backgroundColor = this.ownerList.unSelectedBackColor;
         }
@@ -4859,8 +4256,7 @@ export class ListItem implements IListItemTemplate
             this.anchorElement.classList.remove('active');
     }
 
-    public itemTemplate(): HTMLAnchorElement
-    {
+    public itemTemplate(): HTMLAnchorElement {
         var self = this;
         if (self.anchorElement != null)
             return self.anchorElement;
@@ -4871,8 +4267,7 @@ export class ListItem implements IListItemTemplate
         self.anchorElement.style.padding = '0px';
         self.anchorElement.classList.add('list-group-item', 'align-items-center', 'list-group-item-action');
         self.anchorElement.id = this.itemName;
-        self.anchorElement.onclick = function (ev)
-        {
+        self.anchorElement.onclick = function (ev) {
             self.ownerList.onItemClicked(self, ev);
         };
 
@@ -4887,8 +4282,7 @@ export class ListItem implements IListItemTemplate
         col10Div.classList.add('col-10');
 
         var img: HTMLImageElement = null;
-        if (this.itemImageSource != null)
-        {
+        if (this.itemImageSource != null) {
             img = pageShell.createElement('img');
             img.src = this.itemImageSource;
             img.style.marginRight = '10px';
@@ -4903,8 +4297,7 @@ export class ListItem implements IListItemTemplate
         rowDiv.append(col10Div);
 
         var badgeSpan: HTMLSpanElement = null;
-        if (this.itemBadgeText != null)
-        {
+        if (this.itemBadgeText != null) {
             var col2Div = pageShell.createElement('div');
             col2Div.style.display = 'flex'
             col2Div.style.justifyContent = 'end'
@@ -4930,15 +4323,13 @@ export class ListItem implements IListItemTemplate
         return self.anchorElement;
     }
 }
-export class UITemplateView
-{
+export class UITemplateView {
     public templateDOM: Document;
     public templateString: string;
 
     private viewDictionary: Array<ViewDictionaryEntry>;
     private shellPage: PageShell;
-    constructor(htmlContent: string, shell: PageShell)
-    {
+    constructor(htmlContent: string, shell: PageShell) {
         this.shellPage = shell;
         this.viewDictionary = [];
         //  this.parentFragment.clear();
@@ -4948,12 +4339,10 @@ export class UITemplateView
         var domObj = parser.parseFromString(html, "text/html");
         var allIds = domObj.querySelectorAll('*[id]');
 
-        for (var i = 0; i < allIds.length; i++)
-        {
+        for (var i = 0; i < allIds.length; i++) {
             var element = allIds[i];
             var currentId = element.getAttribute('id');
-            if (currentId != null)
-            {
+            if (currentId != null) {
                 var newId = `${currentId}_${Widget.generateUUID()}`;
                 this.addDictionaryEntry(currentId, newId);
                 element.setAttribute('id', newId);
@@ -4964,18 +4353,14 @@ export class UITemplateView
         this.templateString = domObj.children[0].outerHTML;
     }
 
-    content(): Element
-    {
+    content(): Element {
         return this.templateDOM.children[0];
     }
 
-    public elementById<TElement>(elementId: string): TElement
-    {
-       for (var i = 0; i < this.viewDictionary.length; i++)
-        {
+    public elementById<TElement>(elementId: string): TElement {
+        for (var i = 0; i < this.viewDictionary.length; i++) {
             var entry: ViewDictionaryEntry = this.viewDictionary[i];
-            if (entry.getOriginalId() == elementId)
-            {
+            if (entry.getOriginalId() == elementId) {
                 var elementResult: any = this.templateDOM.getElementById(entry.getManagedId());
                 return elementResult;
             }
@@ -4983,14 +4368,12 @@ export class UITemplateView
         return null as unknown as TElement;
     }
 
-    private addDictionaryEntry(originalId: string, generatedId: string)
-    {
+    private addDictionaryEntry(originalId: string, generatedId: string) {
         var entry = new ViewDictionaryEntry(originalId, generatedId);
         this.viewDictionary.push(entry);
     }
 }
-export class DataGridColumnDefinition
-{
+export class DataGridColumnDefinition {
     /**Column Header */
     public h: string;
 
@@ -4998,29 +4381,24 @@ export class DataGridColumnDefinition
     public k: string;
 }
 
-export class UIDataGridBinder extends WidgetBinder
-{
+export class UIDataGridBinder extends WidgetBinder {
     private dataGrid: UIDataGrid;
-    constructor(dataGrid: UIDataGrid)
-    {
+    constructor(dataGrid: UIDataGrid) {
         super(dataGrid);
         this.dataGrid = dataGrid;
     }
 
-    getWidgetValue()
-    {
+    getWidgetValue() {
         return this.dataGrid.selectedValue();
     }
-    refreshUI(): void
-    {
-        var viewModels:Array<any|object> = this.getModelPropertyValue();
+    refreshUI(): void {
+        var viewModels: Array<any | object> = this.getModelPropertyValue();
         this.dataGrid.fromList(viewModels);
     }
-    fillPropertyModel(): void  { }
+    fillPropertyModel(): void { }
 }
 
-export class UIDataGrid extends Widget implements IBindable
-{
+export class UIDataGrid extends Widget implements IBindable {
     public autoGenerateColumns: boolean;
     public table: HTMLTableElement;
     public tableHeader: HTMLTableSectionElement;
@@ -5041,14 +4419,12 @@ export class UIDataGrid extends Widget implements IBindable
             name: string,
             autoGenCols?: boolean,
             itemTemplateProvider?: IDataGridItemTemplateProvider
-        })
-    {
+        }) {
         super(name);
         this.templateProvider = itemTemplateProvider;
         this.autoGenerateColumns = autoGenCols;
     }
-    getBinder(): WidgetBinder
-    {
+    getBinder(): WidgetBinder {
         return new UIDataGridBinder(this);
     }
 
@@ -5056,18 +4432,15 @@ export class UIDataGrid extends Widget implements IBindable
      * 
      * @param colDefs array of { h: 'Column Header', k: 'model_property_name' }
      */
-    public addColumns(colDefs: Array<DataGridColumnDefinition>): void
-    {
+    public addColumns(colDefs: Array<DataGridColumnDefinition>): void {
         this.table.tHead.innerHTML = '';
-        for (var i = 0; i < colDefs.length; i++)
-        {
+        for (var i = 0; i < colDefs.length; i++) {
             var def: DataGridColumnDefinition = colDefs[i];
             this.addColumn(def.h, def.k);
         }
     }
 
-    public addColumn(columnHeader: string, modelKey: string): void
-    {
+    public addColumn(columnHeader: string, modelKey: string): void {
         var shell = this.getPageShell();
         this.MODEL_KEYS.push(modelKey);
         var thead = this.table.tHead;
@@ -5080,8 +4453,7 @@ export class UIDataGrid extends Widget implements IBindable
         thead.children[0].appendChild(th);
     }
 
-    private generateColumns(list: Array<any>): void
-    {
+    private generateColumns(list: Array<any>): void {
         this.autoGenerateColumns = false;
         this.table.tHead.innerHTML = '';
         this.MODEL_KEYS = [];
@@ -5091,8 +4463,7 @@ export class UIDataGrid extends Widget implements IBindable
         //creating columns
         var tr: HTMLTableRowElement = shell.createElement('tr');
         let firstModel = list[0];
-        for (let key in firstModel)
-        {
+        for (let key in firstModel) {
             var th = shell.createElement('th');
             th.scope = 'col';
             th.textContent = key;
@@ -5102,8 +4473,7 @@ export class UIDataGrid extends Widget implements IBindable
         this.table.tHead.appendChild(tr);
     }
 
-    public fromList(list: Array<any>): void
-    {
+    public fromList(list: Array<any>): void {
         if ((list == null || list == undefined) || list.length == 0)
             return;
 
@@ -5115,8 +4485,7 @@ export class UIDataGrid extends Widget implements IBindable
             this.generateColumns(list);
 
         //adding rows
-        for (var i = 0; i < list.length; i++)
-        {
+        for (var i = 0; i < list.length; i++) {
             var model = list[i];
 
             var itemTemplate: IDataGridItemTemplate;
@@ -5131,33 +4500,28 @@ export class UIDataGrid extends Widget implements IBindable
         }
     }
 
-    public selectedItem(): IDataGridItemTemplate
-    {
+    public selectedItem(): IDataGridItemTemplate {
         for (var i = 0; i < this.items.length; i++)
             if (this.items[i].isSelected())
                 return this.items[i];
         return null;
     }
 
-    public selectedValue(): any | object
-    {
+    public selectedValue(): any | object {
         for (var i = 0; i < this.items.length; i++)
             if (this.items[i].isSelected())
                 return this.items[i].value;
         return null;
     }
 
-    public setSelectedItem(item: IDataGridItemTemplate): void
-    {
+    public setSelectedItem(item: IDataGridItemTemplate): void {
         for (var i = 0; i < this.items.length; i++)
             this.items[i].unSelect();
         item.select();
     }
 
-    public setSelectedValue(model: any | object): void
-    {
-        for (var i = 0; i < this.items.length; i++)
-        {
+    public setSelectedValue(model: any | object): void {
+        for (var i = 0; i < this.items.length; i++) {
             var item = this.items[i];
             if (item.value == model)
                 item.select();
@@ -5166,15 +4530,13 @@ export class UIDataGrid extends Widget implements IBindable
         }
     }
 
-    public onRowClick(item: IDataGridItemTemplate): void
-    {
+    public onRowClick(item: IDataGridItemTemplate): void {
         for (var i = 0; i < this.items.length; i++)
             this.items[i].unSelect();
         item.select();
     }
 
-    protected htmlTemplate(): string
-    {
+    protected htmlTemplate(): string {
         return `
 <table id="fsDataGrid" class="table table-hover table-bordered table-sm">
   <thead id="gridHeader">
@@ -5185,44 +4547,35 @@ export class UIDataGrid extends Widget implements IBindable
 `;
     }
 
-    protected onWidgetDidLoad(): void
-    {
+    protected onWidgetDidLoad(): void {
         this.table = this.elementById('fsDataGrid');
         this.table.style.background = 'white';
         this.tableHeader = this.elementById('gridHeader');
         this.tableBody = this.elementById('gridBody');
     }
 
-    public setCustomPresenter(presenter: ICustomWidgetPresenter<Widget>): void
-    {
+    public setCustomPresenter(presenter: ICustomWidgetPresenter<Widget>): void {
         presenter.render(this);
     }
-    public value(): string
-    {
+    public value(): string {
         throw new Error("Method not implemented.");
     }
-    public setEnabled(enabled: boolean): void
-    {
+    public setEnabled(enabled: boolean): void {
         throw new Error("Method not implemented.");
     }
-    public addCSSClass(className: string): void
-    {
+    public addCSSClass(className: string): void {
         throw new Error("Method not implemented.");
     }
-    public removeCSSClass(className: string): void
-    {
+    public removeCSSClass(className: string): void {
         throw new Error("Method not implemented.");
     }
-    public applyCSS(propertyName: string, propertyValue: string): void
-    {
+    public applyCSS(propertyName: string, propertyValue: string): void {
         throw new Error("Method not implemented.");
     }
-    public setPosition(position: string, marginLeft: string, marginTop: string, marginRight: string, marginBottom: string, transform?: string): void
-    {
+    public setPosition(position: string, marginLeft: string, marginTop: string, marginRight: string, marginBottom: string, transform?: string): void {
         throw new Error("Method not implemented.");
     }
-    public setVisible(visible: boolean): void
-    {
+    public setVisible(visible: boolean): void {
         throw new Error("Method not implemented.");
     }
 

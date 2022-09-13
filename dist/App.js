@@ -25,7 +25,8 @@ class App extends UIPage {
             });
             //#endregion 
             //Start Navigate
-            this.navigateToView(new HomeView());
+            //this.navigateToView(new MainView());
+            this.navigateToView(new LoginView());
         }
         catch (error) {
             new DefaultExceptionPage(error);

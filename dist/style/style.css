@@ -9,6 +9,10 @@ body{
     font-size: 1em;
 }
 
+.fem-15{
+    font-size: 1.5em;
+}
+
 .f-tanks{
     font-size: 1.5em;
     font-style: italic;
@@ -33,4 +37,14 @@ body{
 
 .body-min{
     min-height: 100vh;
+}
+
+.pd-top{
+    padding-top: 120px;
+}
+
+@media (max-width: 600px) {
+    .pd-top{
+        padding-top: 216px;
+    }
 }

@@ -9,7 +9,6 @@ export class UISelectCustom extends Widget {
     public title: string;
     private cssClass: string;
     public onSelectionChanged: Function = null;
-    private list: []
 
     constructor({ name, title, cssClass }:
         {
@@ -49,34 +48,26 @@ export class UISelectCustom extends Widget {
 
     }
 
-    public InitialState() {
+    public InitialState(items?: Array<string>) {
         this.selectElement.innerHTML = `<option id="fsTitle" selected>${this.title}</option>`
         this.titleElement = this.elementById('fsTitle')
+        
+        this.FromList(items)
     }
 
     private AddItem(name: string) {
         const optionElement = `<option value="${name}">${name}</option>`
         this.selectElement.insertAdjacentHTML("beforeend", optionElement)
     }
-    public FromList(models: Array<any>,
-        valueProperty?: string,
-        displayProperty?: string) {
-
-        if (models == null || models == undefined) return;
-
-        try {
-            console.log(models);
-            models.forEach(e => this.AddItem(e))
-        }
-        catch (error) {
-            this.processError(error);
-        }
-
+    public FromList(items: Array<any>) {
+        if (items == null || items == undefined) return;
+        console.log('lista');
+        items.forEach(e => this.AddItem(e))
     }
     public value(): string {
-        if(this.selectElement != undefined && this.selectElement != null){
+        if (this.selectElement != undefined && this.selectElement != null) {
             return this.selectElement.value
-        }else{
+        } else {
             return ''
         }
     }

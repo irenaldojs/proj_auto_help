@@ -27,25 +27,10 @@ class ContentView extends UIView {
     }
     onViewDidLoad() {
         var $ = ContentView.$;
-        var catalog = $.selectCatalog.value();
-        var brand = $.selectBrand.value();
-        var car = $.selectCar.value();
-        CatalogoAPIClient.ListarAplicacoes(catalog, brand, car, function (dados) {
-            console.log(dados, catalog);
-        });
-        CatalogoAPIClient.GetFabricantes(function (fabricantes) {
-            console.log('fabricantes');
-            $.selectBrand.FromList(fabricantes);
-        });
-        CatalogoAPIClient.GetMarcas(function (marcas) {
-            console.log('marcas');
-            $.selectCatalog.FromList(marcas);
-        });
         this.styleWidgets();
     }
     styleWidgets() {
         this.inputYear.inputElement.maxLength = 4;
-        console.log('chamado');
     }
     addListCSSClass(widget, listClass) {
         listClass.forEach(e => {

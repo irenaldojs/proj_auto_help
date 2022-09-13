@@ -1,4 +1,4 @@
-import { HomeView } from './HomeView';
+import { LoginView } from './loginView/LoginView';
 import { DefaultExceptionPage, UIPage, WebAPI } from "./Objective-UI";
 
 export class App extends UIPage {
@@ -26,7 +26,8 @@ export class App extends UIPage {
             //#endregion 
 
             //Start Navigate
-            this.navigateToView(new HomeView());
+            //this.navigateToView(new MainView());
+            this.navigateToView(new LoginView())
         }
         catch (error) {
             new DefaultExceptionPage(error as Error);

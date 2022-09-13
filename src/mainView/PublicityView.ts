@@ -1,10 +1,11 @@
-import { UIImage, Widget } from './../Objective-UI';
-import { Row, UIView, ViewLayout } from "../Objective-UI";
+import { Row, UIView, ViewLayout, UIImage, Widget } from "../Objective-UI";
 
-export class PublicityView extends UIView{
+export class PublicityView extends UIView {
 
-    img1 = new UIImage({name: 'img1', src: './img/publicity/ngk.png'})
-    img2 = new UIImage({name: 'img2', src: './img/publicity/ntk.png'})
+
+
+    img1 = new UIImage({ name: 'img1', src: './img/publicity/ngk.png' })
+    img2 = new UIImage({ name: 'img2', src: './img/publicity/ntk.png' })
 
     buildLayout(): ViewLayout {
         return new ViewLayout('publicity', [
@@ -19,8 +20,8 @@ export class PublicityView extends UIView{
     onViewDidLoad(): void {
         this.styleImgs()
     }
-    
-    styleImgs(){
+
+    styleImgs() {
         this.addListCSSClass(this.img1, ['col-12', 'col-sm-6', 'pb-1'])
         this.addListCSSClass(this.img2, ['col-12', 'col-sm-6', 'pb-1'])
     }

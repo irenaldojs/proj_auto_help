@@ -30,24 +30,20 @@ class UISelectCustom extends Widget {
             }
         };
     }
-    InitialState() {
+    InitialState(items) {
         this.selectElement.innerHTML = `<option id="fsTitle" selected>${this.title}</option>`;
         this.titleElement = this.elementById('fsTitle');
+        this.FromList(items);
     }
     AddItem(name) {
         const optionElement = `<option value="${name}">${name}</option>`;
         this.selectElement.insertAdjacentHTML("beforeend", optionElement);
     }
-    FromList(models, valueProperty, displayProperty) {
-        if (models == null || models == undefined)
+    FromList(items) {
+        if (items == null || items == undefined)
             return;
-        try {
-            console.log(models);
-            models.forEach(e => this.AddItem(e));
-        }
-        catch (error) {
-            this.processError(error);
-        }
+        console.log('lista');
+        items.forEach(e => this.AddItem(e));
     }
     value() {
         if (this.selectElement != undefined && this.selectElement != null) {
