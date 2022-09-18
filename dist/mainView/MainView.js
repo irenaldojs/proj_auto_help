@@ -29,11 +29,11 @@ class MainView extends UIView {
                 rowClass: 'rounded bg-secondary bg-gradient pd-top '
             }),
             new Row('publicity', {
-                rowClass: 'd-flex flex-wrap justify-content-center pd-top bg-dark',
+                rowClass: 'd-flex flex-wrap justify-content-center bg-dark',
             }),
             new Row('footer', {
                 rowHeidth: 'max-content',
-                rowClass: 'w-100 pd-top bg-dark',
+                rowClass: 'w-100 bg-dark',
             }),
         ]);
     }
