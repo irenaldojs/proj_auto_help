@@ -39,12 +39,12 @@ body{
     min-height: 100vh;
 }
 
-.pd-top{
-    padding-top: 120px;
+.space-top{
+    height: 67px;
 }
 
 @media (max-width: 600px) {
-    .pd-top{
-        padding-top: 216px;
+    .space-top{
+        height: 102px;
     }
 }

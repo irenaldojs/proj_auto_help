@@ -8,7 +8,7 @@ export class UINavBarCustom extends Widget {
     public titleElement: HTMLOptionElement;
 
     private cssClass: string;
-    
+
     constructor({ name, cssClass }:
         {
             name: string;

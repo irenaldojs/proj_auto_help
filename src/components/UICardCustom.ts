@@ -7,13 +7,13 @@ export class UICardCustom extends Widget {
     public bodyElement: HTMLUListElement;
 
     title: string[]
-    data: {}
+    data: string[]
 
     constructor({ name, title, data }:
         {
             name: string;
             title: string[];
-            data: {};
+            data: string[];
         }) {
         super(name);
         this.title = title
@@ -39,24 +39,25 @@ export class UICardCustom extends Widget {
         this.mountCard()
     }
 
-    protected mountTitle(){
+    protected mountTitle() {
         let title = ''
         this.title.forEach(e => title += e.toUpperCase() + " ")
         this.titleElement.textContent = title
     }
 
     public mountCard() {
-        for(let row in this.data){
-            const leftText = row
-            const rightText: string = this.data[leftText]
+
+        this.data.forEach((element, index) => {
+            const leftText = element.split(':')[0]
+            const rightText = element.split(':')[1]
             const left = `<div class="font-italic">${leftText}:</div>`
             const right = `<div class="ml-1 text-right fem-15 font-weight-bold">${rightText.toUpperCase()}</div>`
-            const rowElement = `<div class="d-flex flex-row justify-content-between">${left}${right}</div>`        
+            const rowElement = `<div class="d-flex flex-row justify-content-between">${left}${right}</div>`
             this.bodyElement.insertAdjacentHTML('beforeend', rowElement)
-        }
-       
+        });
+
     }
-    
+
     public value(): string {
         return this.widgetName
     }

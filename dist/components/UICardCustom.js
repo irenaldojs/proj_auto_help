@@ -29,14 +29,14 @@ class UICardCustom extends Widget {
         this.titleElement.textContent = title;
     }
     mountCard() {
-        for (let row in this.data) {
-            const leftText = row;
-            const rightText = this.data[leftText];
+        this.data.forEach((element, index) => {
+            const leftText = element.split(':')[0];
+            const rightText = element.split(':')[1];
             const left = `<div class="font-italic">${leftText}:</div>`;
             const right = `<div class="ml-1 text-right fem-15 font-weight-bold">${rightText.toUpperCase()}</div>`;
             const rowElement = `<div class="d-flex flex-row justify-content-between">${left}${right}</div>`;
             this.bodyElement.insertAdjacentHTML('beforeend', rowElement);
-        }
+        });
     }
     value() {
         return this.widgetName;
